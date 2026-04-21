@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Guida Ristoranti Italia 🍝 – Menu Interattivi</title>
+  <meta name="description"
+    content="Guida interattiva ai migliori ristoranti, osterie, pasticcerie e bar italiani con menu dettagliati, prezzi e mappa." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400;1,600&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+</head>
+
+<body>
+
+  <!-- ===== CREDITS BAR ===== -->
+  <div class="top-credit-bar">
+    <div>Questo sito è stato creato da <strong>Claudio Baschieri</strong></div>
+    <div id="last-update-bar" style="font-size: .8rem; color: #a48c68; margin-top: 4px; font-weight: 500;">
+      🔄 Verifica server in corso...
+    </div>
+  </div>
+
+  <!-- ===== MOBILE NAV OVERLAY ===== -->
+  <div id="mobileNavOverlay" class="mobile-nav-overlay" aria-hidden="true">
+    <div class="mobile-nav-drawer">
+      <div class="mobile-nav-header">
+        <span class="logo-icon">🍝</span>
+        <strong>Guida Ristoranti</strong>
+        <button id="mobileNavClose" class="mobile-nav-close" aria-label="Chiudi menu">✕</button>
+      </div>
+      <div class="mobile-nav-search">
+        <input id="searchInputMobile" type="text" placeholder="Cerca ristorante o città…" />
+        <span>🔍</span>
+      </div>
+      <div class="mobile-nav-sort">
+        <label>Ordina per</label>
+        <select id="sortSelectMobile" class="sort-select-mobile">
+          <option value="default">🌟 Consigliati</option>
+          <option value="dist_asc">🚗 Vicini a me</option>
+          <option value="price_asc">💸 Più economici</option>
+          <option value="rating_desc">⭐ Top Recensioni</option>
+        </select>
+      </div>
+      <nav class="mobile-nav-filters">
+        <p class="mobile-nav-section-label">Categoria</p>
+        <button class="mobile-filter-btn active" data-cat="all">🍽️ Tutti</button>
+        <button class="mobile-filter-btn" data-cat="ristorante">🍴 Ristoranti</button>
+        <button class="mobile-filter-btn" data-cat="osteria">🍷 Osterie</button>
+        <button class="mobile-filter-btn" data-cat="pasticceria">🥐 Pasticcerie</button>
+        <button class="mobile-filter-btn" data-cat="bar">☕ Bar</button>
+        <button class="mobile-filter-btn" data-cat="pizzeria">🍕 Pizzerie</button>
+        <button class="mobile-filter-btn" data-cat="preferiti">❤️ Preferiti</button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">🍝</span>
+        <div>
+          <h1 class="logo-title">Guida Ristoranti d'Italia</h1>
+          <p class="logo-sub">Menu interattivi · Prezzi reali · Oltre 30 locali</p>
+        </div>
+      </div>
+      <nav class="filters desktop-filters">
+        <button class="filter-btn active" data-cat="all">Tutti</button>
+        <button class="filter-btn" data-cat="ristorante">🍴 Ristoranti</button>
+        <button class="filter-btn" data-cat="osteria">🍷 Osterie</button>
+        <button class="filter-btn" data-cat="pasticceria">🥐 Pasticcerie</button>
+        <button class="filter-btn" data-cat="bar">☕ Bar</button>
+        <button class="filter-btn" data-cat="pizzeria">🍕 Pizzerie</button>
+        <button class="filter-btn" data-cat="preferiti">❤️ Preferiti</button>
+      </nav>
+      <div class="header-actions">
+        <select id="sortSelect" class="sort-select">
+          <option value="default">🌟 Consigliati</option>
+          <option value="dist_asc">🚗 Vicini a me</option>
+          <option value="price_asc">💸 Più economici</option>
+          <option value="rating_desc">⭐ Top Recensioni</option>
+        </select>
+        <button id="themeToggle" class="theme-toggle" aria-label="Cambia tema">🌙</button>
+        <div class="search-wrap">
+          <input id="searchInput" type="text" placeholder="Cerca ristorante o città…" />
+          <span class="search-icon">🔍</span>
+        </div>
+        <!-- Hamburger mobile -->
+        <button id="hamburgerBtn" class="hamburger-btn" aria-label="Apri menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== LIVE TICKER ===== -->
+  <div class="live-ticker-bar">
+    <div class="live-badge"><span class="pulse-dot"></span> LIVE</div>
+    <div class="marquee-wrap">
+      <div class="marquee-content" id="liveMarquee">
+        <span>🏆 Osteria Francescana è nella Top 10 di Modena questa settimana!</span>
+        <span>🔥 35 utenti stanno guardando le pizzerie a Napoli.</span>
+        <span>🍕 Nuovi locali aggiunti a Roma!</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-content">
+      <!-- Widget Orario Dinamico -->
+      <div class="time-widget-card" id="timeWidget">
+        <div class="tw-icon" id="twIcon">🍸</div>
+        <div class="tw-info">
+          <strong id="twTitle">È l'ora dell'Aperitivo!</strong>
+          <span id="twSubtitle">Orario magico — aperitivi, tapas e cocktail in città</span>
+        </div>
+        <div class="tw-clock" id="twClock">--:--</div>
+      </div>
+      <p class="hero-tag">🇮🇹 La vera cucina italiana</p>
+      <h2 class="hero-title">Scopri i Sapori<br /><em>d'Italia</em></h2>
+      <p class="hero-desc">Sfoglia i menu completi con antipasti, primi, secondi, dolci, vini, birre e bibite. Prezzi
+        trasparenti, qualità garantita.</p>
+      <div id="weatherWidget" class="weather-widget hidden">
+        <span id="weatherIcon" class="weather-icon">🌤️</span>
+        <div class="weather-info">
+          <strong id="weatherCity">Reggio Emilia</strong>
+          <p id="weatherDesc">Oggi c'è il sole! Scopri i locali con Dehors all'aperto.</p>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><strong id="countRest">30+</strong><span>Ristoranti</span></div>
+        <div class="stat"><strong>🇮🇹</strong><span>15 Città</span></div>
+        <div class="stat"><strong>⭐</strong><span>Menu Reali</span></div>
+      </div>
+      <div style="display: flex; gap: 12px; margin-top: 20px;">
+        <button class="cta-btn" onclick="document.getElementById('restaurant-grid').scrollIntoView({behavior:'smooth'})">
+          Sfoglia i Locali ↓
+        </button>
+        <button class="cta-btn" id="vicinoAMeBtn" style="background: var(--gold); color: #fff;">
+          📍 Vicino a me
+        </button>
+      </div>
+    </div>
+    <!-- Google Maps Hero -->
+    <div class="hero-map-wrap">
+      <div class="hero-map-card">
+        <div class="hero-map-label">📍 Ristoranti nella tua zona</div>
+        <div id="heroMap"></div>
+        <div class="hero-map-hint">Clicca su un segnaposto per aprire il menu del locale</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== RESTAURANT GRID ===== -->
+  <main id="restaurant-grid" class="restaurant-section">
+    <div class="section-head">
+      <h2>I Nostri Ristoranti</h2>
+      <p>Clicca su un locale per aprire il menu completo</p>
+    </div>
+
+    <!-- Inizio Container Visti di Recente -->
+    <div id="recentContainer" class="recent-container hidden">
+      <h3>🕒 Visti di recente</h3>
+      <div id="recentGrid" class="recent-grid"></div>
+    </div>
+    <!-- Fine Container Visti di Recente -->
+    <div class="cards-grid" id="cardsGrid"></div>
+  </main>
+
+  <!-- ===== MENU MODAL ===== -->
+  <div class="modal-overlay" id="modal" role="dialog" aria-modal="true">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose" aria-label="Chiudi menu">✕</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <!-- ===== BOOKING MODAL (PRENOTAZIONI) ===== -->
+  <div class="modal-overlay" id="bookModal" role="dialog" aria-modal="true" style="z-index: 10005;">
+    <div class="book-box">
+      <button class="modal-close" id="bookClose" aria-label="Chiudi prenotazione">✕</button>
+      <div class="book-header">
+        <h2 id="bookRestName">Prenota un Tavolo</h2>
+        <p>Compila i dati per inviare la richiesta di prenotazione ufficiale.</p>
+      </div>
+      <form id="bookForm" class="book-form">
+        <div class="form-group">
+          <label>Nome e Cognome</label>
+          <input type="text" id="bookName" required placeholder="Es. Mario Rossi">
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Telefono</label>
+            <input type="tel" id="bookPhone" required placeholder="Es. 333 1234567">
+          </div>
+          <div class="form-group half">
+            <label>Email</label>
+            <input type="email" id="bookEmail" required placeholder="mario@email.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label>Data e Orario</label>
+            <input type="datetime-local" id="bookTime" required>
+          </div>
+          <div class="form-group half">
+            <label>Persone</label>
+            <input type="number" id="bookGuests" min="1" max="20" required value="2">
+          </div>
+        </div>
+        <button type="submit" class="book-submit-btn">Conferma Prenotazione</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== AI CHATBOT VIRTUAL SOMMELIER ===== -->
+  <div id="chatbot-overlay" class="chatbot-overlay hidden"></div>
+
+  <button id="chatbot-fab" class="chatbot-fab">
+    <span class="material-icons-round">smart_toy</span>
+  </button>
+
+  <div id="chatbot-window" class="chatbot-window hidden">
+    <div class="chatbot-header">
+      <div class="chat-header-info">
+        <div class="chat-avatar-wrapper">
+          <span class="chat-status-dot"></span>
+          🤖
+        </div>
+        <div>
+          <strong>Sommelier V.I.P.</strong>
+          <p>🟢 Online — Intelligenza Artificiale</p>
+        </div>
+      </div>
+      <button id="chatbot-close" class="chatbot-close">✕</button>
+    </div>
+    <div id="chatbot-messages" class="chatbot-messages">
+      <div class="msg-row ai-row">
+        <div class="msg-avatar">🤖</div>
+        <div class="msg ai-msg">
+          Benvenuto nel tuo assistente culinario <strong>AI Premium</strong>. Elaboro in tempo reale il database dei 500
+          migliori locali italiani.
+          <br><br>Quali sapori stai cercando oggi? Dimmi un piatto, una città o un'atmosfera!
+        </div>
+      </div>
+    </div>
+
+    <div id="chat-typing" class="chat-typing hidden">
+      <div class="msg-avatar">🤖</div>
+      <div class="typing-dots"><span></span><span></span><span></span></div>
+    </div>
+
+    <div class="chat-quick-replies" style="display:none;"></div>
+
+    <div class="chatbot-input">
+      <input type="text" id="chat-input-text" placeholder="Es. 'Pizzerie a Roma' o 'Pesce a Napoli'..."
+        autocomplete="off">
+      <button id="chat-mic-btn" class="chat-mic-btn" title="Parla con il Sommelier">
+        <span class="material-icons-round">mic</span>
+      </button>
+      <button id="chat-send-btn"><span class="material-icons-round">send</span></button>
+    </div>
+  </div>
+
+  <!-- GALLERY RIMOSSA COME DA RICHIESTA -->
+
+  <!-- ===== CART SIDEBAR ===== -->
+  <div id="cartSidebar" class="cart-sidebar hidden">
+    <div class="cart-header">
+      <h3>🧾 Il Mio Ordine</h3>
+      <button id="cartClose" class="cart-close">✕</button>
+    </div>
+    <div id="cartItems" class="cart-items">
+      <p class="cart-empty">Nessun piatto aggiunto.<br>Clicca su un piatto del menu per aggiungerlo!</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total-row">
+        <span>Totale stimato</span>
+        <strong id="cartTotal">€ 0,00</strong>
+      </div>
+      <button class="cart-order-btn" onclick="checkoutCart()">📲 Invia Ordine</button>
+    </div>
+  </div>
+  <button id="cartFab" class="cart-fab hidden">
+    🛒 <span id="cartCount">0</span>
+  </button>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <p>🍝 Guida Ristoranti d'Italia — Tutti i prezzi sono indicativi e soggetti a variazioni stagionali.</p>
+    <p style="margin-top:6px;font-size:0.8rem;opacity:.6">© 2026 · Fatto con ❤️ in Italia</p>
+  </footer>
+
+  <!-- ===== TOAST CONTAINER ===== -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script src="features_addon.js"></script>
+  <script src="premium_effects.js"></script>
+  <script src="advanced_features.js"></script>
+  <script src="ultimate_premium.js"></script>
+  <!-- ===== AUDIO BACKGROUND ===== -->
+  <audio id="bgMusic" loop src="https://cdn.pixabay.com/download/audio/2022/05/16/audio_b200b39f1c.mp3?filename=jazz-lounge-110826.mp3"></audio>
+  <button id="musicToggleBtn" aria-label="Play/Pause Background Music" style="position:fixed; bottom:20px; left:20px; z-index:10000; width:48px; height:48px; border-radius:50%; border:none; background:rgba(20,20,20,0.8); color:#fff; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
+    <span class="material-icons-round" id="musicToggleIcon">music_off</span>
+  </button>
+  <script>
+    const bgMusic = document.getElementById("bgMusic");
+    const musicBtn = document.getElementById("musicToggleBtn");
+    const musicIcon = document.getElementById("musicToggleIcon");
+    let musicPlaying = false;
+    musicBtn.addEventListener("click", () => {
+      if (musicPlaying) { bgMusic.pause(); musicIcon.textContent = "music_off"; musicBtn.style.color = "#fff"; }
+      else { bgMusic.play().catch(e=>console.log(e)); musicIcon.textContent = "music_note"; musicBtn.style.color = "var(--gold)"; }
+      musicPlaying = !musicPlaying;
+    });
+    // Tentativo autoplay interattivo
+    document.body.addEventListener("click", () => {
+      if (!musicPlaying && !bgMusic.played.length) {
+        bgMusic.volume = 0.4;
+        bgMusic.play().then(() => { musicPlaying = true; musicIcon.textContent = "music_note"; musicBtn.style.color = "var(--gold)"; }).catch(e=>{});
+      }
+    }, { once: true });
+  </script>
+
+</body>
+
+</html>
