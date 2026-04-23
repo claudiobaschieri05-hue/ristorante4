@@ -1169,4 +1169,4 @@ function initLivePulse() {
 
 document.addEventListener("DOMContentLoaded", () => {
   setTimeout(initLivePulse, 1000);
-}) ;
+});
