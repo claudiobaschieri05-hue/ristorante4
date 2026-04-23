@@ -595,79 +595,63 @@ function updateMapMarkers(data) {
 // ── SUPABASE FETCHING ──
 async function caricaLocali(cittaSelezionata) {
   showToast(`Caricamento locali di ${cittaSelezionata}...`, "⏳");
-  
+
   let { data: supabaseData, error } = await _supabase
     .from('ristoranti')
     .select('*')
-    .eq('citta', cittaSelezionata);
+    .ilike('citta', cittaSelezionata);
 
   if (error) {
     console.error("Errore nel caricamento:", error);
-    showToast("Errore database. Uso dati locali.", "⚠️");
-    // Fallback: usa i dati locali filtrati per città
-    const locali = RESTAURANTS.filter(r =>
-      r.city && r.city.toLowerCase().includes(cittaSelezionata.toLowerCase())
-    );
-    disegnaMappa(locali.length > 0 ? locali : RESTAURANTS);
+    showToast("Errore database: " + error.message, "⚠️");
     return;
   }
 
-  // Supabase usa "nome" e "citta" → incrocia con i dati locali generati
-  // per ottenere tutte le proprietà (menu, emoji, cat, stars, ecc.)
-  const nomiDaSupabase = supabaseData.map(r => (r.nome || r.name || "").toLowerCase().trim());
-
-  // Cerca corrispondenze nei dati locali già generati
-  let trovati = RESTAURANTS.filter(r =>
-    nomiDaSupabase.includes((r.name || "").toLowerCase().trim())
-  );
-
-  // Se non trova corrispondenze per nome, filtra per città
-  if (trovati.length === 0) {
-    trovati = RESTAURANTS.filter(r =>
-      r.city && r.city.toLowerCase().includes(cittaSelezionata.toLowerCase())
-    );
+  if (!supabaseData || supabaseData.length === 0) {
+    showToast(`Nessun locale trovato per ${cittaSelezionata}`, "ℹ️");
+    disegnaMappa([]);
+    return;
   }
 
-  // Se ancora niente, costruisce oggetti minimi dai dati Supabase
-  if (trovati.length === 0) {
-    trovati = supabaseData.map((r, i) => ({
-      id: r.id || (9000 + i),
-      name: r.nome || r.name || "Locale",
-      city: r.citta || r.city || cittaSelezionata,
-      lat: r.lat,
-      lng: r.lng,
-      cat: r.cat || "ristorante",
-      emoji: r.emoji || "🍽️",
-      stars: "★★★★☆",
-      avgPrice: "€25–45",
-      address: r.indirizzo || "Indirizzo non disponibile",
-      phone: "N/D",
-      email: "N/D",
-      orari: "12:00–15:00 · 19:00–23:30",
-      desc: "Locale disponibile su Supabase.",
-      rating: 4.0,
-      reviewsCount: 0,
-      reviewsList: [],
-      specialita: [],
-      badge: null,
-      atmosfera: "Informale",
-      veganFriendly: false,
-      glutenFree: false,
-      servizi: { dehor: false, parcheggio: false, wiFi: false, animaliAmmessi: false },
-      image: "ristorante_bg.png",
-      occupancy: 50,
-      menu: { primi: [{ name: "Menu in aggiornamento", price: "—" }] },
-      form_available: false,
-      postiDisponibili: 0,
-      topReview: "",
-      website: "",
-    }));
-  }
+  // Mappa direttamente i dati Supabase agli oggetti dell'app
+  const trovati = supabaseData.map((r, i) => ({
+    id:            r.id || (9000 + i),
+    name:          r.nome || r.name || "Locale",
+    city:          r.citta || r.city || cittaSelezionata,
+    lat:           parseFloat(r.lat) || 0,
+    lng:           parseFloat(r.lng) || 0,
+    cat:           r.cat || "ristorante",
+    emoji:         r.emoji || "🍽️",
+    stars:         "★★★★☆",
+    avgPrice:      "€25–45",
+    address:       r.indirizzo || "Indirizzo non disponibile",
+    phone:         r.phone || "N/D",
+    email:         r.email || "N/D",
+    orari:         r.orari || "12:00–15:00 · 19:00–23:30",
+    desc:          r.desc || "Locale nella provincia di " + cittaSelezionata + ".",
+    rating:        r.rating || 4.0,
+    reviewsCount:  0,
+    reviewsList:   [],
+    specialita:    [],
+    badge:         null,
+    atmosfera:     "Informale",
+    veganFriendly: false,
+    glutenFree:    false,
+    servizi:       { dehor: false, parcheggio: false, wiFi: false, animaliAmmessi: false },
+    image:         "ristorante_bg.png",
+    occupancy:     50,
+    menu:          { primi: [{ name: "Menu in aggiornamento", price: "—" }] },
+    form_available: false,
+    postiDisponibili: 0,
+    topReview:     "",
+    website:       r.website || "",
+  }));
 
   RESTAURANTS = trovati;
   disegnaMappa(trovati);
-  showToast(`${trovati.length} locali caricati da Supabase`, "✅");
+  showToast(`${trovati.length} locali caricati da Supabase ✅`, "🍽️");
 }
+
 
 function disegnaMappa(ristoranti) {
   // Svuota e ri-renderizza la griglia
