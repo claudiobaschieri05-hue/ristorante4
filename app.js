@@ -2,8 +2,14 @@
    app.js – Guida Ristoranti d'Italia
    ================================================ */
 
+// ── SUPABASE INITIALIZATION ──
+const supabaseUrl = 'https://ibcyazqkxypllcjcjnoo.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImliY3lhenFreHlwbGxjamNqbm9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3ODYyNjQsImV4cCI6MjA5MjM2MjI2NH0.aYOo_Sn73Tbr0dHzcGHVeqe0NETdyD_G_5nP2BoVh8o';
+const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
 // ── GLOBALS & PREMIUM FEATURES ──
 const USER_LOC = { lat: 44.6989, lng: 10.6297 }; // Reggio Emilia
+let heroMap, markerLayer;
 let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
 function getDistance(lat1, lon1, lat2, lon2) {
@@ -403,10 +409,12 @@ function initWeather() {
 document.addEventListener("DOMContentLoaded", () => {
   initTheme();
   initWeather();
-  setTimeout(() => showToast("Database sincronizzato: 500 locali agganciati", "🔄"), 800);
-  renderCards(RESTAURANTS);
+  setTimeout(() => showToast("Database sincronizzato con Supabase", "🔄"), 800);
+  
+  // Caricamento iniziale (es. Reggio Emilia)
+  caricaLocali("Reggio Emilia");
+
   renderRecentVisits();
-  document.getElementById("countRest").textContent = RESTAURANTS.length;
 
   // Setta la data di oggi per simulare l'aggiornamento
   const oggi = new Date().toLocaleDateString("it-IT");
@@ -475,51 +483,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // ── MAPPA HERO – Leaflet + OpenStreetMap (gratuito, nessuna API key) ──
+// ── MAPPA HERO – Leaflet + OpenStreetMap ──
 function initHeroMap() {
   const mapEl = document.getElementById("heroMap");
   if (!mapEl || typeof L === "undefined") return;
 
-  // Centro su Reggio Emilia
   const center = [44.6989, 10.6297];
-
-  const map = L.map("heroMap", {
+  heroMap = L.map("heroMap", {
     center: center,
     zoom: 12,
     zoomControl: true,
-    scrollWheelZoom: false, // evita lo scroll accidentale
+    scrollWheelZoom: false,
     attributionControl: true,
   });
 
-  // Tile layer chiaro (CartoDB Positron) – mappa bianca ed elegante
   L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
     subdomains: "abcd",
     maxZoom: 19,
-  }).addTo(map);
+  }).addTo(heroMap);
 
-  // Marker "Tu sei qui" (punto blu pulsante)
+  markerLayer = L.layerGroup().addTo(heroMap);
+
   const youIcon = L.divIcon({
     className: "",
-    html: `<div style="
-      width:16px;height:16px;
-      background:#007aff;
-      border:3px solid #fff;
-      border-radius:50%;
-      box-shadow:0 0 0 6px rgba(0,122,255,0.25);
-    "></div>`,
+    html: `<div style="width:16px;height:16px;background:#007aff;border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 6px rgba(0,122,255,0.25);"></div>`,
     iconSize: [16, 16],
     iconAnchor: [8, 8],
   });
   let userMarker = L.marker(center, { icon: youIcon, zIndexOffset: 1000 })
-    .addTo(map)
+    .addTo(heroMap)
     .bindPopup("<strong style='font-family:Plus Jakarta Sans;'>📍 Tu sei qui</strong>");
 
-  // Al clic sulla mappa, l'utente può spostare la posizione "Tu sei qui"
-  map.on('click', (e) => {
+  heroMap.on('click', (e) => {
     USER_LOC = { lat: e.latlng.lat, lng: e.latlng.lng };
     userMarker.setLatLng(e.latlng);
     userMarker.bindPopup("<strong style='font-family:Plus Jakarta Sans;'>📍 Tu sei qui</strong><br><span style='font-size:0.8rem;'>Posizione personalizzata</span>").openPopup();
-    map.panTo(e.latlng);
+    heroMap.panTo(e.latlng);
     showToast("Posizione aggiornata! Distanze ricalcolate.", "📍");
     applyFilters();
   });
@@ -533,7 +533,7 @@ function initHeroMap() {
           (pos) => {
             const lat = pos.coords.latitude;
             const lng = pos.coords.longitude;
-            map.setView([lat, lng], 14);
+            heroMap.setView([lat, lng], 14);
             userMarker.setLatLng([lat, lng]);
             userMarker.openPopup();
             vicinoAMeBtn.innerHTML = "📍 Posizione trovata";
@@ -550,7 +550,16 @@ function initHeroMap() {
     });
   }
 
-  // Colori per categoria
+  updateMapMarkers(RESTAURANTS);
+
+  mapEl.addEventListener("click", () => heroMap.scrollWheelZoom.enable());
+  mapEl.addEventListener("mouseleave", () => heroMap.scrollWheelZoom.disable());
+}
+
+function updateMapMarkers(data) {
+  if (!markerLayer) return;
+  markerLayer.clearLayers();
+
   const catColors = {
     ristorante: "#c9932e",
     osteria: "#c0392b",
@@ -559,56 +568,119 @@ function initHeroMap() {
     bar: "#00897b",
   };
 
-  // Mappa modale corrente per evitare duplicati
-  let openPopup = null;
-
-  // Aggiungi marker per ogni ristorante
-  if (typeof RESTAURANTS !== "undefined") {
-    RESTAURANTS.forEach(r => {
-      if (!r.lat || !r.lng) return;
-      const color = catColors[r.cat] || "#c9932e";
-
-      const icon = L.divIcon({
-        className: "",
-        html: `<div style="
-          width:36px;height:36px;
-          background:${color};
-          border:2px solid #fff;
-          border-radius:50%;
-          display:flex;align-items:center;justify-content:center;
-          font-size:16px;
-          box-shadow:0 3px 12px rgba(0,0,0,0.5);
-          cursor:pointer;
-          transition:transform .2s;
-        ">${r.emoji || "🍽"}</div>`,
-        iconSize: [36, 36],
-        iconAnchor: [18, 18],
-        popupAnchor: [0, -20],
-      });
-
-      const popup = L.popup({
-        maxWidth: 230,
-        className: "leaflet-custom-popup",
-      }).setContent(`
-        <div style="font-family:'Inter',sans-serif;padding:4px;">
-          <div style="font-size:1.05rem;font-weight:700;color:#1a1208;margin-bottom:4px;">${r.emoji} ${r.name}</div>
-          <div style="font-size:0.8rem;color:#6a4a2a;margin-bottom:2px;">📍 ${r.city}</div>
-          <div style="font-size:0.8rem;color:#6a4a2a;margin-bottom:8px;letter-spacing:1px;">${r.stars} &nbsp;·&nbsp; 💶 ${r.avgPrice}</div>
-          <button onclick="openModal(${r.id})" style="
-            background:#c9932e;color:#fff;border:none;border-radius:8px;
-            padding:7px 14px;font-size:0.82rem;font-weight:700;
-            cursor:pointer;width:100%;font-family:'Inter',sans-serif;
-          ">🍴 Vedi Menu</button>
-        </div>
-      `);
-
-      L.marker([r.lat, r.lng], { icon }).addTo(map).bindPopup(popup);
+  data.forEach(r => {
+    if (!r.lat || !r.lng) return;
+    const color = catColors[r.cat] || "#c9932e";
+    const icon = L.divIcon({
+      className: "",
+      html: `<div style="width:36px;height:36px;background:${color};border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 3px 12px rgba(0,0,0,0.5);cursor:pointer;transition:transform .2s;">${r.emoji || "🍽"}</div>`,
+      iconSize: [36, 36],
+      iconAnchor: [18, 18],
+      popupAnchor: [0, -20],
     });
+
+    const popup = L.popup({ maxWidth: 230, className: "leaflet-custom-popup" }).setContent(`
+      <div style="font-family:'Inter',sans-serif;padding:4px;">
+        <div style="font-size:1.05rem;font-weight:700;color:#1a1208;margin-bottom:4px;">${r.emoji} ${r.name}</div>
+        <div style="font-size:0.8rem;color:#6a4a2a;margin-bottom:2px;">📍 ${r.city}</div>
+        <div style="font-size:0.8rem;color:#6a4a2a;margin-bottom:8px;letter-spacing:1px;">${r.stars} &nbsp;·&nbsp; 💶 ${r.avgPrice}</div>
+        <button onclick="openModal(${r.id})" style="background:#c9932e;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:0.82rem;font-weight:700;cursor:pointer;width:100%;font-family:'Inter',sans-serif;">🍴 Vedi Menu</button>
+      </div>
+    `);
+
+    L.marker([r.lat, r.lng], { icon }).addTo(markerLayer).bindPopup(popup);
+  });
+}
+
+// ── SUPABASE FETCHING ──
+async function caricaLocali(cittaSelezionata) {
+  showToast(`Caricamento locali di ${cittaSelezionata}...`, "⏳");
+  
+  let { data: supabaseData, error } = await _supabase
+    .from('ristoranti')
+    .select('*')
+    .eq('citta', cittaSelezionata);
+
+  if (error) {
+    console.error("Errore nel caricamento:", error);
+    showToast("Errore database. Uso dati locali.", "⚠️");
+    // Fallback: usa i dati locali filtrati per città
+    const locali = RESTAURANTS.filter(r =>
+      r.city && r.city.toLowerCase().includes(cittaSelezionata.toLowerCase())
+    );
+    disegnaMappa(locali.length > 0 ? locali : RESTAURANTS);
+    return;
   }
 
-  // Attiva lo scroll wheel solo quando l'utente fa click sulla mappa
-  mapEl.addEventListener("click", () => map.scrollWheelZoom.enable());
-  mapEl.addEventListener("mouseleave", () => map.scrollWheelZoom.disable());
+  // Supabase usa "nome" e "citta" → incrocia con i dati locali generati
+  // per ottenere tutte le proprietà (menu, emoji, cat, stars, ecc.)
+  const nomiDaSupabase = supabaseData.map(r => (r.nome || r.name || "").toLowerCase().trim());
+
+  // Cerca corrispondenze nei dati locali già generati
+  let trovati = RESTAURANTS.filter(r =>
+    nomiDaSupabase.includes((r.name || "").toLowerCase().trim())
+  );
+
+  // Se non trova corrispondenze per nome, filtra per città
+  if (trovati.length === 0) {
+    trovati = RESTAURANTS.filter(r =>
+      r.city && r.city.toLowerCase().includes(cittaSelezionata.toLowerCase())
+    );
+  }
+
+  // Se ancora niente, costruisce oggetti minimi dai dati Supabase
+  if (trovati.length === 0) {
+    trovati = supabaseData.map((r, i) => ({
+      id: r.id || (9000 + i),
+      name: r.nome || r.name || "Locale",
+      city: r.citta || r.city || cittaSelezionata,
+      lat: r.lat,
+      lng: r.lng,
+      cat: r.cat || "ristorante",
+      emoji: r.emoji || "🍽️",
+      stars: "★★★★☆",
+      avgPrice: "€25–45",
+      address: r.indirizzo || "Indirizzo non disponibile",
+      phone: "N/D",
+      email: "N/D",
+      orari: "12:00–15:00 · 19:00–23:30",
+      desc: "Locale disponibile su Supabase.",
+      rating: 4.0,
+      reviewsCount: 0,
+      reviewsList: [],
+      specialita: [],
+      badge: null,
+      atmosfera: "Informale",
+      veganFriendly: false,
+      glutenFree: false,
+      servizi: { dehor: false, parcheggio: false, wiFi: false, animaliAmmessi: false },
+      image: "ristorante_bg.png",
+      occupancy: 50,
+      menu: { primi: [{ name: "Menu in aggiornamento", price: "—" }] },
+      form_available: false,
+      postiDisponibili: 0,
+      topReview: "",
+      website: "",
+    }));
+  }
+
+  RESTAURANTS = trovati;
+  disegnaMappa(trovati);
+  showToast(`${trovati.length} locali caricati da Supabase`, "✅");
+}
+
+function disegnaMappa(ristoranti) {
+  // Svuota e ri-renderizza la griglia
+  renderCards(ristoranti);
+  // Aggiorna i puntini sulla mappa
+  updateMapMarkers(ristoranti);
+  // Centra la mappa se ci sono locali
+  if (ristoranti.length > 0 && heroMap) {
+    const group = L.featureGroup(ristoranti.map(r => L.marker([r.lat, r.lng])));
+    heroMap.fitBounds(group.getBounds().pad(0.1));
+  }
+  const countEl = document.getElementById("countRest");
+  if (countEl) countEl.textContent = ristoranti.length;
 }
 
 // Avvia la mappa quando il DOM è pronto

@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
   <!-- Vercel Speed Insights -->
   <script>
@@ -88,6 +89,11 @@
         <button class="filter-btn" data-cat="preferiti">❤️ Preferiti</button>
       </nav>
       <div class="header-actions">
+        <select id="filtroCitta" class="sort-select" onchange="caricaLocali(this.value)">
+          <option value="Reggio Emilia">Reggio Emilia</option>
+          <option value="Parma">Parma</option>
+          <option value="Modena">Modena</option>
+        </select>
         <select id="sortSelect" class="sort-select">
           <option value="default">🌟 Consigliati</option>
           <option value="dist_asc">🚗 Vicini a me</option>
