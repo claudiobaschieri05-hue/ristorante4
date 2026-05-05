@@ -415,6 +415,31 @@ document.addEventListener("DOMContentLoaded", () => {
   caricaLocali("Reggio Emilia");
 
   renderRecentVisits();
+  renderCart();
+
+  // ── PUSH NOTIFICATIONS REQUEST ──
+  window.requestPushNotifications = function() {
+    if (!("Notification" in window)) {
+      alert("Questo browser non supporta le notifiche desktop.");
+      return;
+    }
+    Notification.requestPermission().then(permission => {
+      if (permission === "granted") {
+        showToast("Notifiche attivate con successo!", "🔔");
+        if (navigator.serviceWorker) {
+          navigator.serviceWorker.ready.then(registration => {
+            registration.showNotification("Guida Ristoranti", {
+              body: "Benvenuto! Ti avviseremo per i nuovi ristoranti e offerte.",
+              icon: "icon-192.png",
+              vibrate: [200, 100, 200]
+            });
+          });
+        }
+      } else {
+        showToast("Permesso notifiche negato.", "❌");
+      }
+    });
+  };
 
   // Setta la data di oggi per simulare l'aggiornamento
   const oggi = new Date().toLocaleDateString("it-IT");
@@ -603,7 +628,10 @@ async function caricaLocali(cittaSelezionata) {
 
   if (error) {
     console.error("Errore nel caricamento:", error);
-    showToast("Errore database: " + error.message, "⚠️");
+    showToast("Modalità offline: utilizzo dei dati salvati in memoria.", "📶");
+    if (typeof RESTAURANTS !== 'undefined' && RESTAURANTS.length > 0) {
+      disegnaMappa(RESTAURANTS);
+    }
     return;
   }
 
@@ -968,7 +996,7 @@ bookForm.addEventListener("submit", (e) => {
 // ══════════════════════════════════════════════
 // FEATURE 2 – 🧾 CART / ORDER SIMULATOR
 // ══════════════════════════════════════════════
-let cart = []; // { id, name, price, qty, restId }
+let cart = JSON.parse(localStorage.getItem('cart')) || []; // { id, name, price, qty, restId }
 
 function cartTotal() {
   return cart.reduce((s, i) => s + i.price * i.qty, 0);
@@ -1007,6 +1035,7 @@ function renderCart() {
 window.changeQty = function(idx, delta) {
   cart[idx].qty += delta;
   if (cart[idx].qty <= 0) cart.splice(idx, 1);
+  localStorage.setItem('cart', JSON.stringify(cart));
   renderCart();
 };
 
@@ -1019,6 +1048,7 @@ window.addToCart = function(name, priceStr) {
   } else {
     cart.push({ name, price, qty: 1 });
   }
+  localStorage.setItem('cart', JSON.stringify(cart));
   renderCart();
   showToast(`"${name}" aggiunto al conto!`, "🛒");
 
@@ -1035,6 +1065,7 @@ window.checkoutCart = function() {
   const total = cartTotal().toFixed(2);
   showToast(`Ordine inviato! Totale: €${total}. Il locale ti contatterà a breve.`, "✅");
   cart = [];
+  localStorage.setItem('cart', JSON.stringify(cart));
   renderCart();
   document.getElementById("cartSidebar")?.classList.add("hidden");
   document.body.classList.remove("cart-open");

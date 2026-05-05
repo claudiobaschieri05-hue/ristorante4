@@ -3091,6 +3091,11 @@ body.cart-open .chatbot-fab {
   color: #fff;
 }
 
+.push-btn {
+  background: var(--dark);
+  color: #fff;
+}
+
 .book-modal-overlay {
   z-index: 10005;
 }

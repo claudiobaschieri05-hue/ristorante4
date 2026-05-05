@@ -1,7 +1,8 @@
-const CACHE_NAME = 'ristoranti-pwa-v1';
+const CACHE_NAME = 'ristoranti-pwa-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
+  './offline.html',
   './style.css',
   './app.js',
   './data.js',
@@ -57,9 +58,8 @@ self.addEventListener('fetch', (event) => {
       });
     }).catch(() => {
       // In caso di errore di rete e risorsa non in cache
-      // Potremmo mostrare una pagina offline personalizzata qui
       if (event.request.headers.get('accept').includes('text/html')) {
-        return caches.match('./index.html');
+        return caches.match('./offline.html');
       }
     })
   );

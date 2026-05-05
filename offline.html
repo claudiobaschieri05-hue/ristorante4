@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Guida Ristoranti d'Italia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #faf8f5;
+      color: #1a1208;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+    .icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      color: #c9932e;
+      margin: 0 0 10px 0;
+    }
+    p {
+      font-size: 1.1rem;
+      max-width: 500px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+    .contacts-box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      width: 100%;
+      max-width: 400px;
+      text-align: left;
+    }
+    .contacts-box h3 {
+      margin-top: 0;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 10px;
+      color: #c9932e;
+    }
+    .contact-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .contact-item:last-child {
+      border-bottom: none;
+    }
+    .contact-name { font-weight: 600; }
+    .contact-phone { color: #007aff; text-decoration: none; font-weight: 600; }
+    .retry-btn {
+      margin-top: 30px;
+      background: #c9932e;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="icon">📡</div>
+  <h1>Ops! Sembra che tu sia offline</h1>
+  <p>Non riesci a connetterti a internet? Nessun problema! Ecco alcuni numeri utili dei nostri ristoranti principali per prenotare direttamente via telefono.</p>
+
+  <div class="contacts-box">
+    <h3>Emergenza Prenotazioni</h3>
+    <div class="contact-item">
+      <span class="contact-name">Osteria Francescana</span>
+      <a href="tel:059223912" class="contact-phone">059 223912</a>
+    </div>
+    <div class="contact-item">
+      <span class="contact-name">Da Vittorio</span>
+      <a href="tel:035681024" class="contact-phone">035 681024</a>
+    </div>
+    <div class="contact-item">
+      <span class="contact-name">Sorbillo Napoli</span>
+      <a href="tel:081446643" class="contact-phone">081 446643</a>
+    </div>
+    <div class="contact-item">
+      <span class="contact-name">Pizzium Milano</span>
+      <a href="tel:0233607623" class="contact-phone">02 33607623</a>
+    </div>
+  </div>
+
+  <button class="retry-btn" onclick="window.location.href='./index.html'">Riprova la connessione</button>
+
+</body>
+</html>
