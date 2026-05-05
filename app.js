@@ -71,7 +71,8 @@ window.handleGoogleLogin = async function() {
   const { data, error } = await _supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: window.location.origin
+      // Usa l'URL completo della pagina corrente come redirect
+      redirectTo: window.location.href.split('?')[0].split('#')[0]
     }
   });
   if (error) {
@@ -458,6 +459,7 @@ function openModal(id) {
     <div class="dietary-toggles">
       <label class="dt-label"><input type="checkbox" id="dtVegan" onchange="toggleDietary()"> 🌿 Focus Vegan</label>
       <label class="dt-label"><input type="checkbox" id="dtGF" onchange="toggleDietary()"> 🌾 Focus Senza Glutine</label>
+      <button id="translateMenuBtn" class="translate-menu-btn" onclick="translateMenu('${r.id}')">🌍 Traduci Menu</button>
     </div>
     <div class="menu-tabs">${tabsHTML}</div>
     <div class="menu-body">
@@ -477,6 +479,48 @@ function openModal(id) {
   // Applica le traduzioni anche nel modal se in inglese
   if (typeof applyTranslations === 'function') applyTranslations();
 }
+
+// ── FEATURE 5: TRADUZIONE AI DEL MENU ──
+window.translateMenu = async function(restId) {
+  const btn = document.getElementById('translateMenuBtn');
+  if (!btn) return;
+  
+  const targetLang = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'it' : 'en';
+  const sourceLang = targetLang === 'en' ? 'it' : 'en';
+  const btnLabel = targetLang === 'en' ? '🌍 Traduci in Inglese' : '🌍 Torna in Italiano';
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Traduzione in corso...';
+
+  const items = document.querySelectorAll('.mi-name, .mi-desc');
+  const texts = [...items].map(el => el.textContent.trim()).filter(Boolean);
+
+  try {
+    // MyMemory API - gratuita, nessuna API key necessaria
+    const translated = await Promise.all(texts.map(async (text) => {
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`;
+      const resp = await fetch(url);
+      const json = await resp.json();
+      return json.responseData?.translatedText || text;
+    }));
+
+    // Applica le traduzioni agli elementi
+    let i = 0;
+    items.forEach(el => {
+      if (el.textContent.trim()) {
+        el.textContent = translated[i++];
+      }
+    });
+
+    btn.disabled = false;
+    btn.textContent = targetLang === 'en' ? '🇮🇹 Torna in Italiano' : '🇬🇧 Translate to English';
+    showToast(`Menu tradotto in ${targetLang === 'en' ? 'inglese' : 'italiano'}!`, '🌍');
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = btnLabel;
+    showToast('Errore nella traduzione. Riprova.', '❌');
+  }
+};
 
 window.submitReview = async function(restId) {
   if (!currentUser) return;
@@ -534,17 +578,38 @@ document.getElementById("modal").addEventListener("click", e => {
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
 
+// ── FEATURE 7: APERTO ORA ──
+function isOpenNow(orariStr) {
+  if (!orariStr || orariStr === 'N/D') return true; // se non ci sono orari, mostralo sempre
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  
+  // Formato atteso: "12:00–15:00 · 19:00–23:30" o "12:00-15:00"
+  const ranges = orariStr.split('·').map(s => s.trim());
+  return ranges.some(range => {
+    const parts = range.replace('–', '-').split('-').map(s => s.trim());
+    if (parts.length < 2) return false;
+    const [startH, startM] = parts[0].split(':').map(Number);
+    const [endH, endM] = parts[1].split(':').map(Number);
+    if (isNaN(startH) || isNaN(endH)) return false;
+    const start = startH * 60 + (startM || 0);
+    const end = endH * 60 + (endM || 0);
+    return currentMinutes >= start && currentMinutes <= end;
+  });
+}
+
 // ── FILTERS ──
 function applyFilters() {
-  // Legge la categoria dal dropdown se esiste, altrimenti dai filter-btn
   const dropdown = document.getElementById("filterDropdown");
   const cat = dropdown ? dropdown.value : (document.querySelector(".filter-btn.active")?.dataset.cat || "all");
   const q = document.getElementById("searchInput").value.toLowerCase().trim();
   const sort = document.getElementById("sortSelect")?.value || "default";
+  const soloAperti = document.getElementById("openNowToggle")?.checked || false;
 
   let filtered = RESTAURANTS.filter(r => {
     const matchCat = cat === "all" || (cat === "preferiti" ? favorites.includes(r.id) : r.cat === cat);
     let matchQ = !q || r.name.toLowerCase().includes(q) || r.city.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q);
+    const matchOpen = !soloAperti || isOpenNow(r.orari);
 
     r._matchedDish = null;
     if (!matchQ && q) {
@@ -559,7 +624,7 @@ function applyFilters() {
         if (matchQ) break;
       }
     }
-    return matchCat && matchQ;
+    return matchCat && matchQ && matchOpen;
   });
 
   if (sort === "dist_asc") {
@@ -763,11 +828,28 @@ function initHeroMap() {
     attributionControl: true,
   });
 
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+  // Feature 6: Mappa dark o light in base al tema
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const tileUrl = isDark
+    ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+    : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+  const mapTileLayer = L.tileLayer(tileUrl, {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
     subdomains: "abcd",
     maxZoom: 19,
   }).addTo(heroMap);
+
+  // Aggiorna le tiles quando si cambia tema
+  document.getElementById('themeToggle')?.addEventListener('click', () => {
+    setTimeout(() => {
+      const isNowDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const newTileUrl = isNowDark
+        ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+      heroMap.removeLayer(mapTileLayer);
+      L.tileLayer(newTileUrl, { subdomains: 'abcd', maxZoom: 19 }).addTo(heroMap);
+    }, 100);
+  });
 
   markerLayer = L.layerGroup().addTo(heroMap);
 
@@ -919,27 +1001,36 @@ async function caricaLocali(cittaSelezionata) {
     .select('*')
     .ilike('city', cittaSelezionata);
 
-  if (err1 && err2) {
-    console.error("Errore nel caricamento:", err1, err2);
-    showToast("Errore connessione database.", "❌");
+  // ── FALLBACK AI DATI STATICI ──
+  // Se entrambe le tabelle Supabase sono vuote o danno errore,
+  // usiamo i dati statici di data.js filtrati per città
+  const staticForCity = (window.RESTAURANTS_STATIC || RESTAURANTS).filter(
+    r => r.city && r.city.toLowerCase() === cittaSelezionata.toLowerCase()
+  );
+
+  const allRawSupabase = [...(supabaseData || []), ...(customData || [])];
+
+  if (allRawSupabase.length === 0 && staticForCity.length > 0) {
+    console.log("Nessun dato da Supabase, uso dati statici per", cittaSelezionata);
+    window.RESTAURANTS = staticForCity;
+    disegnaMappa(staticForCity);
+    showToast(`${staticForCity.length} locali caricati (offline) ✅`, "🍽️");
     return;
   }
 
-  const allRawData = [...(supabaseData || []), ...(customData || [])];
-
-  if (allRawData.length === 0) {
+  if (allRawSupabase.length === 0) {
     showToast(`Nessun locale trovato per ${cittaSelezionata}`, "ℹ️");
     disegnaMappa([]);
     return;
   }
 
-  const trovati = allRawData.map((r, i) => {
+  const trovati = allRawSupabase.map((r, i) => {
     const category = r.cat || "ristorante";
     let defaultMenu = { primi: [{ name: "Piatto del giorno dello Chef", price: "€14", desc: "Ingredienti freschi di stagione" }] };
     if (category === "pizzeria") { defaultMenu = { pizze: [{ name: "Margherita Tradizionale", price: "€8", desc: "Pomodoro, basilico" }] }; }
     
     return {
-      id:            r.id + (r.city ? 10000 : 0), // Offset per ID custom
+      id:            r.id + (r.city ? 10000 : 0),
       name:          r.nome || r.name || "Locale",
       city:          r.citta || r.city || cittaSelezionata,
       lat:           parseFloat(r.lat) || 0,

@@ -3389,3 +3389,60 @@ body.cart-open .chatbot-fab {
   .search-wrap { display: none; }
 }
 
+/* ── APERTO ORA TOGGLE ── */
+.open-now-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 24px 0;
+  margin-bottom: 4px;
+}
+.open-now-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+.open-now-toggle input { opacity: 0; width: 0; height: 0; }
+.open-now-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(201,147,58,0.4);
+  border-radius: 24px;
+  transition: 0.3s;
+}
+.open-now-slider::before {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  left: 3px; bottom: 3px;
+  background: #9c805a;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+.open-now-toggle input:checked + .open-now-slider { background: rgba(34,197,94,0.25); border-color: #22c55e; }
+.open-now-toggle input:checked + .open-now-slider::before { transform: translateX(20px); background: #22c55e; }
+.open-now-label { font-size: 0.88rem; color: #c4a87a; font-weight: 500; }
+.open-now-toggle input:checked ~ .open-now-label { color: #22c55e; }
+
+/* ── TRADUCI MENU BUTTON ── */
+.translate-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(59,130,246,0.12);
+  border: 1.5px solid rgba(59,130,246,0.35);
+  border-radius: 20px;
+  color: #93c5fd;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+  margin-left: auto;
+}
+.translate-menu-btn:hover { background: rgba(59,130,246,0.22); border-color: #60a5fa; }
+.translate-menu-btn:disabled { opacity: 0.5; cursor: wait; }

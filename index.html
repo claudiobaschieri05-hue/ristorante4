@@ -17,13 +17,13 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+
   <!-- Vercel Speed Insights -->
   <script>
     window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
   </script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
-  
+
   <!-- PWA Meta Tags -->
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
@@ -32,7 +32,8 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Guida Ristoranti d'Italia" />
   <meta property="og:title" content="Guida Ristoranti d'Italia 🍝 – Menu Interattivi e Prezzi Reali" />
-  <meta property="og:description" content="Scopri i migliori ristoranti, osterie, bar e pizzerie in Italia. Sfoglia i menu completi con prezzi aggiornati e prenota il tuo tavolo!" />
+  <meta property="og:description"
+    content="Scopri i migliori ristoranti, osterie, bar e pizzerie in Italia. Sfoglia i menu completi con prezzi aggiornati e prenota il tuo tavolo!" />
   <meta property="og:image" content="icon-512.png" />
   <meta property="og:locale" content="it_IT" />
   <meta property="og:locale:alternate" content="en_GB" />
@@ -68,7 +69,8 @@
         <button id="mobileNavClose" class="mobile-nav-close" aria-label="Chiudi menu">✕</button>
       </div>
       <div class="mobile-nav-search">
-        <input id="searchInputMobile" type="text" placeholder="Cerca ristorante o città…" data-i18n="search_placeholder" />
+        <input id="searchInputMobile" type="text" placeholder="Cerca ristorante o città…"
+          data-i18n="search_placeholder" />
         <span>🔍</span>
       </div>
       <div class="mobile-nav-sort">
@@ -127,13 +129,15 @@
           <option value="price_asc" data-i18n-opt="sort_cheap">💸 Più economici</option>
           <option value="rating_desc" data-i18n-opt="sort_rating">⭐ Top Recensioni</option>
         </select>
-        <button id="langToggleBtn" class="theme-toggle lang-toggle" onclick="toggleLanguage()" title="Cambia lingua">🇬🇧 EN</button>
+        <button id="langToggleBtn" class="theme-toggle lang-toggle" onclick="toggleLanguage()"
+          title="Cambia lingua">🇬🇧 EN</button>
         <button id="themeToggle" class="theme-toggle" aria-label="Cambia tema">🌙</button>
         <div class="search-wrap">
           <input id="searchInput" type="text" placeholder="Cerca ristorante o città…" data-i18n="search_placeholder" />
           <span class="search-icon">🔍</span>
         </div>
-        <button id="authBtn" class="cta-btn push-btn auth-btn" onclick="openAuthModal()" data-i18n="btn_login">👤 Accedi</button>
+        <button id="authBtn" class="cta-btn push-btn auth-btn" onclick="openAuthModal()" data-i18n="btn_login">👤
+          Accedi</button>
         <!-- Hamburger mobile -->
         <button id="hamburgerBtn" class="hamburger-btn" aria-label="Apri menu" aria-expanded="false">
           <span></span><span></span><span></span>
@@ -168,7 +172,8 @@
       </div>
       <p class="hero-tag" data-i18n="hero_tag">🇮🇹 La vera cucina italiana</p>
       <h2 class="hero-title" data-i18n="hero_title_big">Scopri i Sapori<br /><em>d'Italia</em></h2>
-      <p class="hero-desc" data-i18n="hero_desc">Sfoglia i menu completi con antipasti, primi, secondi, dolci, vini, birre e bibite. Prezzi
+      <p class="hero-desc" data-i18n="hero_desc">Sfoglia i menu completi con antipasti, primi, secondi, dolci, vini,
+        birre e bibite. Prezzi
         trasparenti, qualità garantita.</p>
       <div id="weatherWidget" class="weather-widget hidden">
         <span id="weatherIcon" class="weather-icon">🌤️</span>
@@ -183,7 +188,8 @@
         <div class="stat"><strong>⭐</strong><span data-i18n="stats_menus">Menu Reali</span></div>
       </div>
       <div class="hero-actions">
-        <button class="cta-btn" onclick="document.getElementById('restaurant-grid').scrollIntoView({behavior:'smooth'})" data-i18n="btn_browse">
+        <button class="cta-btn" onclick="document.getElementById('restaurant-grid').scrollIntoView({behavior:'smooth'})"
+          data-i18n="btn_browse">
           Sfoglia i Locali ↓
         </button>
         <button class="cta-btn vicino-a-me-btn" id="vicinoAMeBtn" data-i18n="btn_near_me">
@@ -209,6 +215,15 @@
     <div class="section-head">
       <h2 data-i18n="grid_title">I Nostri Ristoranti</h2>
       <p data-i18n="grid_subtitle">Clicca su un locale per aprire il menu completo</p>
+    </div>
+
+    <!-- Filtro Aperto Ora -->
+    <div class="open-now-bar">
+      <label class="open-now-toggle" for="openNowToggle">
+        <input type="checkbox" id="openNowToggle" aria-label="Mostra solo ristoranti aperti ora" onchange="applyFilters()">
+        <span class="open-now-slider"></span>
+      </label>
+      <span class="open-now-label">🟢 Mostra solo aperti ora</span>
     </div>
 
     <!-- Inizio Container Visti di Recente -->
@@ -324,7 +339,8 @@
       <button id="cartClose" class="cart-close">✕</button>
     </div>
     <div id="cartItems" class="cart-items">
-      <p class="cart-empty" data-i18n="cart_empty">Nessun piatto aggiunto.<br>Clicca su un piatto del menu per aggiungerlo!</p>
+      <p class="cart-empty" data-i18n="cart_empty">Nessun piatto aggiunto.<br>Clicca su un piatto del menu per
+        aggiungerlo!</p>
     </div>
     <div class="cart-footer">
       <div class="cart-total-row">
@@ -340,7 +356,8 @@
 
   <!-- ===== FOOTER ===== -->
   <footer class="site-footer">
-    <p data-i18n="footer_legal">🍝 Guida Ristoranti d'Italia — Tutti i prezzi sono indicativi e soggetti a variazioni stagionali.</p>
+    <p data-i18n="footer_legal">🍝 Guida Ristoranti d'Italia — Tutti i prezzi sono indicativi e soggetti a variazioni
+      stagionali.</p>
     <p class="footer-copyright">© 2026 · Fatto con ❤️ in Italia</p>
   </footer>
 
@@ -352,20 +369,23 @@
       <div class="auth-input-group">
         <input type="email" id="authEmail" class="auth-input" placeholder="Email" data-i18n="auth_email">
         <input type="password" id="authPassword" class="auth-input" placeholder="Password" data-i18n="auth_password">
-        <button class="cta-btn push-btn auth-submit" id="authSubmitBtn" onclick="handleAuthSubmit()" data-i18n="auth_submit_login">Accedi</button>
+        <button class="cta-btn push-btn auth-submit" id="authSubmitBtn" onclick="handleAuthSubmit()"
+          data-i18n="auth_submit_login">Accedi</button>
       </div>
-      
+
       <div class="auth-divider">
         <span data-i18n="auth_divider_or">oppure</span>
       </div>
-      
+
       <button class="google-auth-btn" onclick="handleGoogleLogin()">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" class="google-logo">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo"
+          class="google-logo">
         <span data-i18n="auth_google_btn">Accedi con Google</span>
       </button>
 
       <div class="auth-toggle-group">
-        <a href="#" id="authToggleLink" class="auth-toggle-link" onclick="toggleAuthMode(event)" data-i18n="auth_toggle_register">Non hai un account? Registrati</a>
+        <a href="#" id="authToggleLink" class="auth-toggle-link" onclick="toggleAuthMode(event)"
+          data-i18n="auth_toggle_register">Non hai un account? Registrati</a>
       </div>
     </div>
   </div>
@@ -406,7 +426,8 @@
   <script src="advanced_features.js"></script>
   <script src="ultimate_premium.js"></script>
   <!-- ===== AUDIO BACKGROUND ===== -->
-  <audio id="bgMusic" loop src="https://cdn.pixabay.com/download/audio/2022/05/16/audio_b200b39f1c.mp3?filename=jazz-lounge-110826.mp3"></audio>
+  <audio id="bgMusic" loop
+    src="https://cdn.pixabay.com/download/audio/2022/05/16/audio_b200b39f1c.mp3?filename=jazz-lounge-110826.mp3"></audio>
   <button id="musicToggleBtn" class="music-toggle-btn" aria-label="Play/Pause Background Music">
     <span class="material-icons-round" id="musicToggleIcon">music_off</span>
   </button>
@@ -417,14 +438,14 @@
     let musicPlaying = false;
     musicBtn.addEventListener("click", () => {
       if (musicPlaying) { bgMusic.pause(); musicIcon.textContent = "music_off"; musicBtn.style.color = "#fff"; }
-      else { bgMusic.play().catch(e=>console.log(e)); musicIcon.textContent = "music_note"; musicBtn.style.color = "var(--gold)"; }
+      else { bgMusic.play().catch(e => console.log(e)); musicIcon.textContent = "music_note"; musicBtn.style.color = "var(--gold)"; }
       musicPlaying = !musicPlaying;
     });
     // Tentativo autoplay interattivo
     document.body.addEventListener("click", () => {
       if (!musicPlaying && !bgMusic.played.length) {
         bgMusic.volume = 0.4;
-        bgMusic.play().then(() => { musicPlaying = true; musicIcon.textContent = "music_note"; musicBtn.style.color = "var(--gold)"; }).catch(e=>{});
+        bgMusic.play().then(() => { musicPlaying = true; musicIcon.textContent = "music_note"; musicBtn.style.color = "var(--gold)"; }).catch(e => { });
       }
     }, { once: true });
   </script>
