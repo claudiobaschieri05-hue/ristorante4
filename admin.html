@@ -117,6 +117,11 @@
     .rest-item span { color: #7a6040; font-size: 0.78rem; }
     .rest-delete { background: none; border: none; color: #e05757; cursor: pointer; font-size: 1rem; padding: 4px 8px; border-radius: 4px; }
     .rest-delete:hover { background: rgba(220,50,50,0.15); }
+    .btn-full { width: 100%; }
+    .admin-note { color: #9c805a; font-size: 0.85rem; line-height: 1.6; }
+    .admin-note code { color: var(--gold); }
+    .rest-loading { color: #7a6040; font-size: 0.85rem; }
+    .rest-error { color: #e05757; font-size: 0.85rem; }
   </style>
 </head>
 <body>
@@ -126,7 +131,7 @@
     <h1>🔐 Area Admin</h1>
     <p>Inserisci la password per accedere al pannello di gestione</p>
     <input type="password" id="adminPwdInput" placeholder="••••••••••" onkeydown="if(event.key==='Enter')checkAdminPwd()" />
-    <button class="btn btn-primary" style="width:100%;" onclick="checkAdminPwd()">Accedi →</button>
+    <button class="btn btn-primary btn-full" onclick="checkAdminPwd()">Accedi →</button>
     <p id="loginError">❌ Password errata. Riprova.</p>
   </div>
 
@@ -199,17 +204,17 @@
     <div class="admin-card">
       <h2>📋 Ristoranti su Supabase</h2>
       <div class="rest-list" id="restList">
-        <p style="color:#7a6040;font-size:0.85rem;">Caricamento...</p>
+        <p class="rest-loading">Caricamento...</p>
       </div>
     </div>
 
     <!-- Istruzioni SQL -->
     <div class="admin-card">
       <h2>📖 Note Tecniche</h2>
-      <p style="color:#9c805a;font-size:0.85rem;line-height:1.6;">
-        I ristoranti salvati qui appaiono nel sito principale accanto a quelli del file <code style="color:var(--gold)">data.js</code>.<br>
-        Assicurati di aver creato la tabella <code style="color:var(--gold)">ristoranti_custom</code> su Supabase con lo script SQL
-        che trovi nel file <code style="color:var(--gold)">walkthrough.md</code>.
+      <p class="admin-note">
+        I ristoranti salvati qui appaiono nel sito principale accanto a quelli del file <code>data.js</code>.<br>
+        Assicurati di aver creato la tabella <code>ristoranti_custom</code> su Supabase con lo script SQL
+        che trovi nel file <code>walkthrough.md</code>.
       </p>
     </div>
   </div>

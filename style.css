@@ -3269,7 +3269,8 @@ body.cart-open .chatbot-fab {
   /* HERO */
   .hero {
     grid-template-columns: 1fr;
-    min-height: auto;
+    min-height: 0;
+    height: auto;
     padding-bottom: 20px;
   }
   .hero-content { padding: 24px 16px 16px; }
