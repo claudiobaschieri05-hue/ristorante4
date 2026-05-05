@@ -72,15 +72,81 @@ _supabase.auth.onAuthStateChange((event, session) => {
   const authBtn = document.getElementById("authBtn");
   if (authBtn) {
     if (currentUser) {
-      authBtn.setAttribute("data-i18n", "btn_logout");
-      authBtn.onclick = async () => { await _supabase.auth.signOut(); showToast("Disconnesso", "👋"); };
+      const initials = currentUser.email[0].toUpperCase();
+      authBtn.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:22px;height:22px;border-radius:50%;background:var(--gold);color:#1a0f00;font-weight:800;font-size:0.75rem;display:inline-flex;align-items:center;justify-content:center;">${initials}</span> ${currentUser.email.split('@')[0]}</span>`;
+      authBtn.onclick = openProfileModal;
     } else {
       authBtn.setAttribute("data-i18n", "btn_login");
+      authBtn.innerHTML = "👤 Accedi";
       authBtn.onclick = openAuthModal;
     }
   }
   if (typeof applyTranslations === 'function') applyTranslations();
 });
+
+// ── PROFILE MODAL ──
+window.openProfileModal = async function() {
+  if (!currentUser) return;
+  document.getElementById("profileModal").classList.add("open");
+  document.body.style.overflow = "hidden";
+
+  // Imposta avatar e nome
+  const initials = currentUser.email[0].toUpperCase();
+  document.getElementById("profileAvatar").textContent = initials;
+  document.getElementById("profileName").textContent = currentUser.email.split('@')[0];
+  document.getElementById("profileEmail").textContent = currentUser.email;
+
+  // Preferiti
+  const favsList = document.getElementById("profileFavsList");
+  favsList.innerHTML = "";
+  if (favorites.length === 0) {
+    favsList.innerHTML = '<p class="profile-empty">Nessun preferito salvato.</p>';
+  } else {
+    favorites.forEach(id => {
+      const r = RESTAURANTS.find(x => x.id === id);
+      if (!r) return;
+      const tag = document.createElement("span");
+      tag.className = "profile-fav-tag";
+      tag.textContent = r.name;
+      tag.onclick = () => { closeProfileModal(); openModal(r.id); };
+      favsList.appendChild(tag);
+    });
+  }
+
+  // Recensioni da Supabase
+  const revList = document.getElementById("profileReviewsList");
+  revList.innerHTML = '<p class="profile-empty">Caricamento...</p>';
+  const { data: revs, error } = await _supabase
+    .from('recensioni')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  if (error || !revs || revs.length === 0) {
+    revList.innerHTML = '<p class="profile-empty">Nessuna recensione ancora.</p>';
+  } else {
+    revList.innerHTML = revs.map(rev => {
+      const r = RESTAURANTS.find(x => x.id === rev.ristorante_id);
+      return `<div class="profile-review-card">
+        <div class="rev-stars">${rev.stars}</div>
+        <p class="rev-text">${rev.testo}</p>
+        <p class="rev-rest">📍 ${r ? r.name : 'Ristorante #' + rev.ristorante_id}</p>
+      </div>`;
+    }).join("");
+  }
+};
+
+window.closeProfileModal = function() {
+  document.getElementById("profileModal").classList.remove("open");
+  document.body.style.overflow = "";
+};
+
+window.logoutFromProfile = async function() {
+  await _supabase.auth.signOut();
+  closeProfileModal();
+  showToast("Disconnesso con successo", "👋");
+};
+
 
 
 function getDistance(lat1, lon1, lat2, lon2) {

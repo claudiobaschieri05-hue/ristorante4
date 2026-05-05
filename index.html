@@ -27,6 +27,26 @@
   <!-- PWA Meta Tags -->
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
+
+  <!-- SEO & Open Graph (anteprima su WhatsApp, Facebook, LinkedIn) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Guida Ristoranti d'Italia" />
+  <meta property="og:title" content="Guida Ristoranti d'Italia 🍝 – Menu Interattivi e Prezzi Reali" />
+  <meta property="og:description" content="Scopri i migliori ristoranti, osterie, bar e pizzerie in Italia. Sfoglia i menu completi con prezzi aggiornati e prenota il tuo tavolo!" />
+  <meta property="og:image" content="icon-512.png" />
+  <meta property="og:locale" content="it_IT" />
+  <meta property="og:locale:alternate" content="en_GB" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Guida Ristoranti d'Italia 🍝" />
+  <meta name="twitter:description" content="Sfoglia menu completi con prezzi reali. Oltre 30 locali in Italia." />
+  <meta name="twitter:image" content="icon-512.png" />
+
+  <!-- Extra SEO -->
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="Claudio Baschieri" />
+  <meta name="theme-color" content="#c9932e" />
 </head>
 
 <body>
@@ -337,6 +357,31 @@
       <div class="auth-toggle-group">
         <a href="#" id="authToggleLink" class="auth-toggle-link" onclick="toggleAuthMode(event)" data-i18n="auth_toggle_register">Non hai un account? Registrati</a>
       </div>
+    </div>
+  </div>
+
+  <!-- ===== PROFILE MODAL ===== -->
+  <div class="modal-overlay" id="profileModal" role="dialog" aria-modal="true">
+    <div class="modal-box auth-modal-box profile-modal-box">
+      <button class="modal-close" onclick="closeProfileModal()" aria-label="Chiudi profilo">✕</button>
+      <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatar">?</div>
+        <div>
+          <h2 class="profile-name" id="profileName">Utente</h2>
+          <p class="profile-email" id="profileEmail"></p>
+        </div>
+      </div>
+      <div class="profile-section">
+        <h3 class="profile-section-title">❤️ Ristoranti Preferiti</h3>
+        <div id="profileFavsList" class="profile-favs-list"></div>
+      </div>
+      <div class="profile-section">
+        <h3 class="profile-section-title">✍️ Le mie Recensioni</h3>
+        <div id="profileReviewsList" class="profile-reviews-list">
+          <p class="profile-empty">Nessuna recensione ancora.</p>
+        </div>
+      </div>
+      <button class="cta-btn push-btn profile-logout-btn" onclick="logoutFromProfile()">🚪 Disconnetti</button>
     </div>
   </div>
 
