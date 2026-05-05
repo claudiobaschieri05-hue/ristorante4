@@ -84,8 +84,10 @@ _supabase.auth.onAuthStateChange((event, session) => {
   const authBtn = document.getElementById("authBtn");
   if (authBtn) {
     if (currentUser) {
-      const initials = currentUser.email[0].toUpperCase();
-      authBtn.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:22px;height:22px;border-radius:50%;background:var(--gold);color:#1a0f00;font-weight:800;font-size:0.75rem;display:inline-flex;align-items:center;justify-content:center;">${initials}</span> ${currentUser.email.split('@')[0]}</span>`;
+      const userEmail = currentUser.email || currentUser.user_metadata?.email || "Utente";
+      const userName = currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || userEmail.split('@')[0];
+      const initials = userName[0] ? userName[0].toUpperCase() : "?";
+      authBtn.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:22px;height:22px;border-radius:50%;background:var(--gold);color:#1a0f00;font-weight:800;font-size:0.75rem;display:inline-flex;align-items:center;justify-content:center;">${initials}</span> ${userName}</span>`;
       authBtn.onclick = openProfileModal;
     } else {
       authBtn.setAttribute("data-i18n", "btn_login");
@@ -103,10 +105,13 @@ window.openProfileModal = async function() {
   document.body.style.overflow = "hidden";
 
   // Imposta avatar e nome
-  const initials = currentUser.email[0].toUpperCase();
+  const userEmail = currentUser.email || currentUser.user_metadata?.email || "Nessuna email";
+  const userName = currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || userEmail.split('@')[0];
+  const initials = userName[0] ? userName[0].toUpperCase() : "?";
+  
   document.getElementById("profileAvatar").textContent = initials;
-  document.getElementById("profileName").textContent = currentUser.email.split('@')[0];
-  document.getElementById("profileEmail").textContent = currentUser.email;
+  document.getElementById("profileName").textContent = userName;
+  document.getElementById("profileEmail").textContent = userEmail;
 
   // Preferiti
   const favsList = document.getElementById("profileFavsList");

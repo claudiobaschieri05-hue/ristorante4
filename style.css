@@ -3268,6 +3268,21 @@ body.cart-open .chatbot-fab {
    ================================================ */
 @media (max-width: 480px) {
 
+  /* MODALS */
+  .auth-modal-box, .profile-modal-box {
+    width: 90%;
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  .profile-avatar {
+    width: 56px; height: 56px; font-size: 1.5rem;
+  }
+
   /* HEADER */
   .site-header { padding: 0; }
   .header-inner {
