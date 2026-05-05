@@ -33,7 +33,7 @@
 
   <!-- ===== CREDITS BAR ===== -->
   <div class="top-credit-bar">
-    <div>Questo sito è stato creato da <strong>Claudio Baschieri</strong></div>
+    <div data-i18n="credits_bar">Questo sito è stato creato da <strong>Claudio Baschieri</strong></div>
     <div id="last-update-bar" class="last-update-bar">
       🔄 Verifica server in corso...
     </div>
@@ -298,18 +298,18 @@
   <!-- ===== CART SIDEBAR ===== -->
   <div id="cartSidebar" class="cart-sidebar hidden">
     <div class="cart-header">
-      <h3>🧾 Il Mio Ordine</h3>
+      <h3 data-i18n="cart_title">🧾 Il Mio Ordine</h3>
       <button id="cartClose" class="cart-close">✕</button>
     </div>
     <div id="cartItems" class="cart-items">
-      <p class="cart-empty">Nessun piatto aggiunto.<br>Clicca su un piatto del menu per aggiungerlo!</p>
+      <p class="cart-empty" data-i18n="cart_empty">Nessun piatto aggiunto.<br>Clicca su un piatto del menu per aggiungerlo!</p>
     </div>
     <div class="cart-footer">
       <div class="cart-total-row">
-        <span>Totale stimato</span>
+        <span data-i18n="cart_total_label">Totale stimato</span>
         <strong id="cartTotal">€ 0,00</strong>
       </div>
-      <button class="cart-order-btn" onclick="checkoutCart()">📲 Invia Ordine</button>
+      <button class="cart-order-btn" onclick="checkoutCart()" data-i18n="cart_order">📲 Invia Ordine</button>
     </div>
   </div>
   <button id="cartFab" class="cart-fab hidden">
@@ -318,7 +318,7 @@
 
   <!-- ===== FOOTER ===== -->
   <footer class="site-footer">
-    <p>🍝 Guida Ristoranti d'Italia — Tutti i prezzi sono indicativi e soggetti a variazioni stagionali.</p>
+    <p data-i18n="footer_legal">🍝 Guida Ristoranti d'Italia — Tutti i prezzi sono indicativi e soggetti a variazioni stagionali.</p>
     <p class="footer-copyright">© 2026 · Fatto con ❤️ in Italia</p>
   </footer>
 

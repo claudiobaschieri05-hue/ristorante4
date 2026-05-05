@@ -59,7 +59,9 @@ const TRANSLATIONS = {
     "auth_submit_login": "Accedi",
     "auth_submit_register": "Registrati",
     "auth_toggle_register": "Non hai un account? Registrati",
-    "auth_toggle_login": "Hai già un account? Accedi"
+    "auth_toggle_login": "Hai già un account? Accedi",
+    "credits_bar": "Questo sito è stato creato da <strong>Claudio Baschieri</strong>",
+    "cart_total_label": "Totale stimato"
   },
   en: {
     // HEADER
@@ -120,7 +122,9 @@ const TRANSLATIONS = {
     "auth_submit_login": "Login",
     "auth_submit_register": "Register",
     "auth_toggle_register": "Don't have an account? Register",
-    "auth_toggle_login": "Already have an account? Login"
+    "auth_toggle_login": "Already have an account? Login",
+    "credits_bar": "This site was created by <strong>Claudio Baschieri</strong>",
+    "cart_total_label": "Estimated total"
   }
 };
 
