@@ -602,9 +602,35 @@ function initWeather() {
   document.getElementById("weatherWidget").classList.remove("hidden");
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   initTheme();
   initWeather();
+  
+  // ── SINCRONIZZAZIONE RISTORANTI DA SUPABASE ──
+  try {
+    const { data: customRests, error } = await _supabase
+      .from('ristoranti_custom')
+      .select('*');
+    
+    if (!error && customRests) {
+      // Trasforma i dati di Supabase nel formato dell'app
+      const formatted = customRests.map(r => ({
+        ...r,
+        id: "c" + r.id, // Aggiungiamo un prefisso per evitare conflitti con gli ID fissi
+        emoji: r.cat === 'pizzeria' ? '🍕' : (r.cat === 'pasticceria' ? '🥐' : (r.cat === 'bar' ? '☕' : (r.cat === 'osteria' ? '🍷' : '🍴'))),
+        menu: r.menu || { "Piatti": [{ name: "Consultare il locale", price: "Varia", desc: "Menu in fase di aggiornamento" }] },
+        reviewsCount: Math.floor(Math.random() * 100) + 10,
+        desc: r.descrizione || r.desc || "", // Supporto per il nuovo nome campo
+      }));
+      
+      // Uniamo alla lista globale
+      window.RESTAURANTS = [...RESTAURANTS, ...formatted];
+      console.log("Database sincronizzato: aggiunto " + formatted.length + " locali custom.");
+    }
+  } catch (e) {
+    console.error("Errore sincronizzazione Supabase:", e);
+  }
+
   setTimeout(() => showToast("Database sincronizzato con Supabase", "🔄"), 800);
   
   // Caricamento iniziale (es. Reggio Emilia)
@@ -813,86 +839,120 @@ function updateMapMarkers(data) {
   });
 }
 
+function sendWhatsAppOrder() {
+  if (cart.length === 0) return;
+  let msg = "Ciao! Vorrei effettuare un ordine tramite la Guida Ristoranti:\n\n";
+  cart.forEach(item => { msg += `• ${item.qty}x ${item.name} (${item.price})\n`; });
+  const total = document.getElementById("cartTotal").textContent;
+  msg += `\n💰 *Totale stimato: ${total}*`;
+  msg += "\n\nPotete confermarmi la disponibilità? Grazie!";
+  const encoded = encodeURIComponent(msg);
+  window.open(`https://wa.me/?text=${encoded}`, "_blank");
+}
+
+function renderCart() {
+  const container = document.getElementById("cartItems");
+  const btnOrder = document.getElementById("btnSendOrder");
+  if (!container || !btnOrder) return;
+  btnOrder.onclick = sendWhatsAppOrder;
+
+  if (cart.length === 0) {
+    container.innerHTML = `<div class="cart-empty" data-i18n="cart_empty">Nessun piatto aggiunto.<br>Clicca su un piatto del menu per aggiungerlo!</div>`;
+    btnOrder.disabled = true;
+    if (typeof applyTranslations === 'function') applyTranslations();
+    document.getElementById("cartTotal").textContent = "€ 0.00";
+    return;
+  }
+  btnOrder.disabled = false;
+  container.innerHTML = cart.map((item, index) => `
+    <div class="cart-item">
+      <div class="ci-info">
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">${item.price}</div>
+      </div>
+      <div class="ci-actions">
+        <button class="ci-btn" onclick="updateQty(${index}, -1)">-</button>
+        <span class="ci-qty">${item.qty}</span>
+        <button class="ci-btn" onclick="updateQty(${index}, 1)">+</button>
+      </div>
+    </div>
+  `).join("");
+  const total = cart.reduce((acc, item) => {
+    const p = parseFloat(item.price.replace("€", "").replace(",", ".")) || 0;
+    return acc + (p * item.qty);
+  }, 0);
+  document.getElementById("cartTotal").textContent = `€ ${total.toFixed(2)}`;
+}
+
 // ── SUPABASE FETCHING ──
 async function caricaLocali(cittaSelezionata) {
   showToast(`Caricamento locali di ${cittaSelezionata}...`, "⏳");
 
-  let { data: supabaseData, error } = await _supabase
+  // 1. Carica ristoranti standard
+  let { data: supabaseData, error: err1 } = await _supabase
     .from('ristoranti')
     .select('*')
     .ilike('citta', cittaSelezionata);
 
-  if (error) {
-    console.error("Errore nel caricamento:", error);
-    showToast("Modalità offline: utilizzo dei dati salvati in memoria.", "📶");
-    if (typeof RESTAURANTS !== 'undefined' && RESTAURANTS.length > 0) {
-      disegnaMappa(RESTAURANTS);
-    }
+  // 2. Carica ristoranti personalizzati (quelli dell'Admin)
+  let { data: customData, error: err2 } = await _supabase
+    .from('ristoranti_custom')
+    .select('*')
+    .ilike('city', cittaSelezionata);
+
+  if (err1 && err2) {
+    console.error("Errore nel caricamento:", err1, err2);
+    showToast("Errore connessione database.", "❌");
     return;
   }
 
-  if (!supabaseData || supabaseData.length === 0) {
+  const allRawData = [...(supabaseData || []), ...(customData || [])];
+
+  if (allRawData.length === 0) {
     showToast(`Nessun locale trovato per ${cittaSelezionata}`, "ℹ️");
     disegnaMappa([]);
     return;
   }
 
-  // Mappa direttamente i dati Supabase agli oggetti dell'app
-  const trovati = supabaseData.map((r, i) => {
+  const trovati = allRawData.map((r, i) => {
     const category = r.cat || "ristorante";
-    
-    // Genera un menu di base realistico a seconda della categoria
     let defaultMenu = { primi: [{ name: "Piatto del giorno dello Chef", price: "€14", desc: "Ingredienti freschi di stagione" }] };
-    if (category === "pizzeria") {
-      defaultMenu = { pizze: [{ name: "Margherita Tradizionale", price: "€8", desc: "Pomodoro, mozzarella, basilico" }, { name: "Diavola", price: "€10", desc: "Salame piccante e olive" }] };
-    } else if (category === "bar") {
-      defaultMenu = { aperitivo: [{ name: "Spritz & Tagliere", price: "€12", desc: "Aperitivo completo con stuzzichini" }] };
-    } else if (category === "osteria") {
-      defaultMenu = { primi: [{ name: "Tagliatelle al Ragù", price: "€12" }], vini: [{ name: "Lambrusco della casa (0.5L)", price: "€7" }] };
-    } else if (category === "pasticceria") {
-      defaultMenu = { dolci: [{ name: "Vassoio di Paste Fresche", price: "€15" }] };
-    }
-
+    if (category === "pizzeria") { defaultMenu = { pizze: [{ name: "Margherita Tradizionale", price: "€8", desc: "Pomodoro, basilico" }] }; }
+    
     return {
-      id:            r.id || (9000 + i),
-      name:          r.nome || "Locale",
-      city:          r.citta || cittaSelezionata,
+      id:            r.id + (r.city ? 10000 : 0), // Offset per ID custom
+      name:          r.nome || r.name || "Locale",
+      city:          r.citta || r.city || cittaSelezionata,
       lat:           parseFloat(r.lat) || 0,
       lng:           parseFloat(r.lng) || 0,
       cat:           category,
-      emoji:         r.emoji || "🍽️",
+      emoji:         r.emoji || (category==='pizzeria'?'🍕':(category==='bar'?'☕':'🍴')),
       stars:         r.stars || "★★★★☆",
-      avgPrice:      r.price || "€25–45",
-      address:       r.indirizzo || "Indirizzo non disponibile",
+      avgPrice:      r.price || r.avgPrice || "€25–45",
+      address:       r.indirizzo || r.address || "Indirizzo non disponibile",
       phone:         r.phone || "N/D",
       email:         r.email || "N/D",
       orari:         r.orari || "12:00–15:00 · 19:00–23:30",
-      desc:          r.descr || "Splendido locale situato a " + cittaSelezionata + ".",
+      desc:          r.descr || r.descrizione || r.desc || "Splendido locale.",
       rating:        parseFloat(r.rating) || 4.0,
       reviewsCount:  Math.floor(Math.random() * 800) + 50,
-      reviewsList:   [
-        { user: "Marco G.", date: "2 giorni fa", stars: r.stars || "★★★★★", text: "Ottima scoperta! Qualità altissima." },
-        { user: "Elena P.", date: "1 settimana fa", stars: "★★★★☆", text: "Posto accogliente e servizio veloce." }
-      ],
-      specialita:    ["Specialità della casa", "Piatto tipico"],
-      badge:         null,
+      reviewsList:   [{ user: "Utente", date: "Oggi", stars: "★★★★★", text: "Ottimo!" }],
+      specialita:    ["Specialità della casa"],
       atmosfera:     "Accogliente",
-      veganFriendly: Math.random() > 0.5,
-      glutenFree:    Math.random() > 0.5,
+      veganFriendly: true,
+      glutenFree:    true,
       servizi:       { dehor: true, parcheggio: true, wiFi: true, animaliAmmessi: true },
       image:         category + "_bg.png",
-      occupancy:     Math.floor(Math.random() * 90) + 10,
-      menu:          defaultMenu,
+      menu:          r.menu || defaultMenu,
       form_available: true,
       postiDisponibili: 15,
-      topReview:     "Consigliatissimo per la qualità delle materie prime!",
       website:       r.website || "",
     };
   });
 
-  RESTAURANTS = trovati;
+  window.RESTAURANTS = trovati;
   disegnaMappa(trovati);
-  showToast(`${trovati.length} locali caricati da Supabase ✅`, "🍽️");
+  showToast(`${trovati.length} locali caricati ✅`, "🍽️");
 }
 
 
