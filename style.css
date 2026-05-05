@@ -3099,6 +3099,31 @@ body.cart-open .chatbot-fab {
   color: #fff;
 }
 
+/* Filter Dropdown */
+.filter-dropdown-wrap {
+  display: flex;
+  align-items: center;
+}
+.filter-dropdown {
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(201,147,58,0.45);
+  color: #d4b88a;
+  padding: 6px 30px 6px 12px;
+  border-radius: 20px;
+  font-size: 0.83rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.2s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23c9932e' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  white-space: nowrap;
+}
+.filter-dropdown:hover, .filter-dropdown:focus { border-color: var(--gold); }
+
 /* Auth & Lang Buttons */
 .lang-toggle {
   display: inline-flex;

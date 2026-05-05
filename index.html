@@ -83,15 +83,17 @@
           <p class="logo-sub" data-i18n="nav_subtitle">Menu interattivi · Prezzi reali · Oltre 30 locali</p>
         </div>
       </div>
-      <nav class="filters desktop-filters">
-        <button class="filter-btn active" data-cat="all" data-i18n="filter_all">Tutti</button>
-        <button class="filter-btn" data-cat="ristorante">🍴 Ristoranti</button>
-        <button class="filter-btn" data-cat="osteria">🍷 Osterie</button>
-        <button class="filter-btn" data-cat="pasticceria">🥐 Pasticcerie</button>
-        <button class="filter-btn" data-cat="bar">☕ Bar</button>
-        <button class="filter-btn" data-cat="pizzeria">🍕 Pizzerie</button>
-        <button class="filter-btn" data-cat="preferiti" data-i18n="filter_favs">❤️ Preferiti</button>
-      </nav>
+      <div class="filter-dropdown-wrap">
+        <select id="filterDropdown" class="filter-dropdown" title="Filtra per categoria">
+          <option value="all" data-i18n-opt="filter_all">🍽️ Tutti</option>
+          <option value="ristorante">🍴 Ristoranti</option>
+          <option value="osteria">🍷 Osterie</option>
+          <option value="pasticceria">🥐 Pasticcerie</option>
+          <option value="bar">☕ Bar</option>
+          <option value="pizzeria">🍕 Pizzerie</option>
+          <option value="preferiti" data-i18n-opt="filter_favs">❤️ Preferiti</option>
+        </select>
+      </div>
       <div class="header-actions">
         <select id="filtroCitta" class="sort-select" onchange="caricaLocali(this.value)" title="Filtra per città">
           <option value="Reggio Emilia">Reggio Emilia</option>

@@ -158,6 +158,8 @@ window.toggleLanguage = function() {
   currentLang = currentLang === "it" ? "en" : "it";
   localStorage.setItem("lang", currentLang);
   applyTranslations();
+  // Aggiorna il widget orario nella nuova lingua
+  if (typeof updateTimeWidget === 'function') updateTimeWidget();
 };
 
 document.addEventListener("DOMContentLoaded", applyTranslations);

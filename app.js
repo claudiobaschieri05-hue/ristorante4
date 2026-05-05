@@ -451,7 +451,9 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal()
 
 // ── FILTERS ──
 function applyFilters() {
-  const cat = document.querySelector(".filter-btn.active")?.dataset.cat || "all";
+  // Legge la categoria dal dropdown se esiste, altrimenti dai filter-btn
+  const dropdown = document.getElementById("filterDropdown");
+  const cat = dropdown ? dropdown.value : (document.querySelector(".filter-btn.active")?.dataset.cat || "all");
   const q = document.getElementById("searchInput").value.toLowerCase().trim();
   const sort = document.getElementById("sortSelect")?.value || "default";
 
@@ -487,6 +489,13 @@ function applyFilters() {
   renderCards(filtered);
 }
 
+// Dropdown filtro categoria
+const filterDropdown = document.getElementById("filterDropdown");
+if (filterDropdown) {
+  filterDropdown.addEventListener("change", applyFilters);
+}
+
+// Manteniamo i vecchi .filter-btn se presenti (mobile)
 document.querySelectorAll(".filter-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
@@ -1247,38 +1256,29 @@ function updateTimeWidget() {
   const twSubtitle = document.getElementById('twSubtitle');
   if (!twClock || !twIcon || !twTitle || !twSubtitle) return;
 
+  const lang = (typeof currentLang !== 'undefined') ? currentLang : 'it';
   const now = new Date();
   twClock.textContent = now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
   const hour = now.getHours();
 
-  if (hour >= 6 && hour < 11) {
-    twIcon.textContent = '☕';
-    twTitle.textContent = "È l'ora della Colazione!";
-    twSubtitle.textContent = "Inizia la giornata con un buon caffè e cornetto";
-  } else if (hour >= 11 && hour < 15) {
-    twIcon.textContent = '🍝';
-    twTitle.textContent = "È l'ora del Pranzo!";
-    twSubtitle.textContent = "Pausa pranzo perfetta tra ristoranti e trattorie";
-  } else if (hour >= 15 && hour < 18) {
-    twIcon.textContent = '🍰';
-    twTitle.textContent = "Pausa Merenda!";
-    twSubtitle.textContent = "Un dolcetto o un caffè per ricaricarsi";
-  } else if (hour >= 18 && hour < 21) {
-    twIcon.textContent = '🍸';
-    twTitle.textContent = "È l'ora dell'Aperitivo!";
-    twSubtitle.textContent = "Orario magico — aperitivi, tapas e cocktail in città";
-  } else if (hour >= 21 || hour < 3) {
-    twIcon.textContent = '🍷';
-    twTitle.textContent = "È l'ora della Cena!";
-    twSubtitle.textContent = "Atmosfera serale per cene indimenticabili";
-  } else {
-    twIcon.textContent = '🌙';
-    twTitle.textContent = "Spuntino Notturno!";
-    twSubtitle.textContent = "I locali aperti fino a tardi per i nottambuli";
-  }
+  const times = [
+    { from: 6, to: 11,  icon: '☕',  it: ["È l'ora della Colazione!", "Inizia la giornata con un buon caffè e cornetto"], en: ["Breakfast Time!", "Start the day with a good coffee and pastry"] },
+    { from: 11, to: 15, icon: '🍝',  it: ["È l'ora del Pranzo!", "Pausa pranzo perfetta tra ristoranti e trattorie"], en: ["Lunch Time!", "Perfect lunch break among restaurants and trattorias"] },
+    { from: 15, to: 18, icon: '🍰',  it: ["Pausa Merenda!", "Un dolcetto o un caffè per ricaricarsi"], en: ["Snack Time!", "A sweet treat or coffee to recharge"] },
+    { from: 18, to: 21, icon: '🍸',  it: ["È l'ora dell'Aperitivo!", "Orario magico — aperitivi, tapas e cocktail in città"], en: ["Aperitivo Hour!", "Magical time — aperitifs, tapas and cocktails in the city"] },
+    { from: 21, to: 27, icon: '🍷',  it: ["È l'ora della Cena!", "Atmosfera serale per cene indimenticabili"], en: ["Dinner Time!", "Evening atmosphere for unforgettable dinners"] },
+    { from: 3,  to: 6,  icon: '🌙',  it: ["Spuntino Notturno!", "I locali aperti fino a tardi per i nottambuli"], en: ["Late Night Snack!", "Venues open late for night owls"] }
+  ];
+
+  const h = hour < 3 ? hour + 24 : hour;
+  const slot = times.find(t => h >= t.from && h < t.to) || times[4];
+  twIcon.textContent = slot.icon;
+  twTitle.textContent = slot[lang] ? slot[lang][0] : slot.it[0];
+  twSubtitle.textContent = slot[lang] ? slot[lang][1] : slot.it[1];
 }
 setInterval(updateTimeWidget, 1000);
 document.addEventListener("DOMContentLoaded", updateTimeWidget);
+
 // ── LIVE PULSE NOTIFICATIONS ──
 function initLivePulse() {
   const pulseContainer = document.createElement('div');
