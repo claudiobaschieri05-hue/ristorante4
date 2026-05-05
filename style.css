@@ -3188,3 +3188,114 @@ body.cart-open .chatbot-fab {
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
+
+/* ================================================
+   MOBILE RESPONSIVE — SMARTPHONE (max 480px)
+   ================================================ */
+@media (max-width: 480px) {
+
+  /* HEADER */
+  .site-header { padding: 0; }
+  .header-inner {
+    padding: 6px 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: space-between;
+  }
+  .logo { flex: 1; min-width: 0; }
+  .logo-icon { font-size: 1.2rem; }
+  .logo-title { font-size: 0.9rem; }
+  .logo-sub { display: none; }
+
+  /* Nasconde elementi non essenziali su mobile — ci pensa l'hamburger */
+  .filter-dropdown-wrap { display: none; }
+  .sort-select { display: none; }
+  .search-wrap { display: none; }
+  .desktop-filters { display: none; }
+
+  /* Mostra solo lang + tema + hamburger nel header mobile */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+  .lang-toggle {
+    padding: 4px 8px;
+    font-size: 0.72rem;
+    margin-right: 0;
+  }
+  .auth-btn {
+    display: none; /* Su mobile l'auth è nel menu drawer */
+  }
+
+  /* HERO */
+  .hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding-bottom: 20px;
+  }
+  .hero-content { padding: 24px 16px 16px; }
+  .hero-map-wrap { display: none; } /* La mappa è opzionale su schermi piccoli */
+
+  .hero-title { font-size: 2.2rem; }
+  .hero-desc { font-size: 0.9rem; }
+  .hero-tag { font-size: 0.8rem; }
+  .hero-stats { gap: 12px; }
+  .stat strong { font-size: 1.4rem; }
+  .stat span { font-size: 0.7rem; }
+
+  .hero-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .cta-btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* TIME WIDGET */
+  .time-widget-card {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+  .tw-info strong { font-size: 0.95rem; }
+  .tw-info span { font-size: 0.72rem; }
+  .tw-clock { font-size: 1.1rem; padding: 6px 8px; }
+
+  /* GRID RISTORANTI */
+  .section-head h2 { font-size: 1.5rem; }
+  .cards-grid { grid-template-columns: 1fr !important; gap: 16px; padding: 16px; }
+
+  /* MODAL */
+  .modal-box { padding: 16px; border-radius: 0; width: 100%; height: 100%; max-height: 100dvh; overflow-y: auto; }
+  .modal-overlay.open .modal-box { max-width: 100%; }
+
+  /* AUTH MODAL */
+  .auth-modal-box { max-width: 100%; padding: 20px 16px; }
+
+  /* CART */
+  .cart-sidebar { width: 100vw; }
+
+  /* FOOTER */
+  .site-footer { padding: 20px 16px; font-size: 0.8rem; text-align: center; }
+
+  /* CREDITS BAR */
+  .top-credit-bar { flex-direction: column; gap: 4px; text-align: center; padding: 6px 12px; font-size: 0.72rem; }
+}
+
+/* TABLET (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-map-wrap { display: none; }
+  .hero-content { padding: 30px 24px; }
+  .hero-title { font-size: 2.8rem; }
+  .hero-actions { flex-wrap: wrap; }
+  .cta-btn { flex: 1; min-width: 140px; }
+  .cards-grid { grid-template-columns: 1fr 1fr !important; }
+  .filter-dropdown-wrap { display: none; }
+  .sort-select { display: none; }
+  .search-wrap { display: none; }
+}
+

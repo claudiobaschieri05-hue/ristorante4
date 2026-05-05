@@ -1,12 +1,19 @@
-// translations.js
+// translations.js — Guida Ristoranti d'Italia
 const TRANSLATIONS = {
   it: {
     // HEADER
     "nav_title": "Guida Ristoranti d'Italia",
     "nav_subtitle": "Menu interattivi · Prezzi reali · Oltre 30 locali",
+    "mobile_nav_title": "Guida Ristoranti",
     "search_placeholder": "Cerca ristorante o città...",
-    "filter_all": "Tutti",
+    "filter_all": "🍽️ Tutti",
     "filter_favs": "❤️ Preferiti",
+    "filter_label": "Categoria",
+    "sort_label": "Ordina per",
+    "sort_recommended": "🌟 Consigliati",
+    "sort_near": "🚗 Vicini a me",
+    "sort_cheap": "💸 Più economici",
+    "sort_rating": "⭐ Top Recensioni",
     "btn_login": "👤 Accedi",
     "btn_logout": "🚪 Esci",
 
@@ -34,9 +41,9 @@ const TRANSLATIONS = {
     "recent_title": "🕒 Visti di recente",
 
     // CART
-    "cart_title": "🧾 Il Tuo Conto",
+    "cart_title": "🧾 Il Mio Ordine",
     "cart_empty": "Nessun piatto aggiunto.<br>Clicca su un piatto del menu per aggiungerlo!",
-    "cart_total_label": "Totale",
+    "cart_total_label": "Totale stimato",
     "cart_order": "📲 Invia Ordine",
 
     // MODAL RISTORANTE
@@ -49,8 +56,9 @@ const TRANSLATIONS = {
     "review_login_prompt": "Fai il Login per scrivere una recensione.",
 
     // FOOTER
-    "footer_credits": "Questo sito è stato creato da",
-    "footer_legal": "Tutti i prezzi sono indicativi e soggetti a variazioni stagionali.",
+    "footer_legal": "🍝 Guida Ristoranti d'Italia — Tutti i prezzi sono indicativi e soggetti a variazioni stagionali.",
+    "credits_bar": "Questo sito è stato creato da <strong>Claudio Baschieri</strong>",
+    "cart_total_label": "Totale stimato",
 
     // AUTH
     "auth_login_title": "Accedi al tuo account",
@@ -59,17 +67,22 @@ const TRANSLATIONS = {
     "auth_submit_login": "Accedi",
     "auth_submit_register": "Registrati",
     "auth_toggle_register": "Non hai un account? Registrati",
-    "auth_toggle_login": "Hai già un account? Accedi",
-    "credits_bar": "Questo sito è stato creato da <strong>Claudio Baschieri</strong>",
-    "cart_total_label": "Totale stimato"
+    "auth_toggle_login": "Hai già un account? Accedi"
   },
   en: {
     // HEADER
     "nav_title": "Italian Restaurants Guide",
     "nav_subtitle": "Interactive Menus · Real Prices · 30+ Venues",
+    "mobile_nav_title": "Restaurants Guide",
     "search_placeholder": "Search restaurant or city...",
-    "filter_all": "All",
+    "filter_all": "🍽️ All",
     "filter_favs": "❤️ Favorites",
+    "filter_label": "Category",
+    "sort_label": "Sort by",
+    "sort_recommended": "🌟 Recommended",
+    "sort_near": "🚗 Near me",
+    "sort_cheap": "💸 Cheapest",
+    "sort_rating": "⭐ Top Rated",
     "btn_login": "👤 Login",
     "btn_logout": "🚪 Logout",
 
@@ -97,9 +110,9 @@ const TRANSLATIONS = {
     "recent_title": "🕒 Recently viewed",
 
     // CART
-    "cart_title": "🧾 Your Order",
+    "cart_title": "🧾 My Order",
     "cart_empty": "No items added.<br>Click a menu item to add it!",
-    "cart_total_label": "Total",
+    "cart_total_label": "Estimated total",
     "cart_order": "📲 Send Order",
 
     // MODAL RISTORANTE
@@ -112,8 +125,9 @@ const TRANSLATIONS = {
     "review_login_prompt": "Login to write a review.",
 
     // FOOTER
-    "footer_credits": "This site was created by",
-    "footer_legal": "All prices are indicative and subject to seasonal variations.",
+    "footer_legal": "🍝 Italian Restaurants Guide — All prices are indicative and subject to seasonal variations.",
+    "credits_bar": "This site was created by <strong>Claudio Baschieri</strong>",
+    "cart_total_label": "Estimated total",
 
     // AUTH
     "auth_login_title": "Login to your account",
@@ -122,20 +136,20 @@ const TRANSLATIONS = {
     "auth_submit_login": "Login",
     "auth_submit_register": "Register",
     "auth_toggle_register": "Don't have an account? Register",
-    "auth_toggle_login": "Already have an account? Login",
-    "credits_bar": "This site was created by <strong>Claudio Baschieri</strong>",
-    "cart_total_label": "Estimated total"
+    "auth_toggle_login": "Already have an account? Login"
   }
 };
 
 let currentLang = localStorage.getItem("lang") || "it";
 
 function applyTranslations() {
+  const t = TRANSLATIONS[currentLang];
+  if (!t) return;
+
+  // Traduce elementi normali con data-i18n
   document.querySelectorAll("[data-i18n]").forEach(el => {
     const key = el.getAttribute("data-i18n");
-    const t = TRANSLATIONS[currentLang];
-    if (!t || !t[key]) return;
-
+    if (!t[key]) return;
     if (el.tagName === "INPUT" && el.hasAttribute("placeholder")) {
       el.placeholder = t[key];
     } else {
@@ -143,7 +157,13 @@ function applyTranslations() {
     }
   });
 
-  // Aggiorna il tasto lingua con stile bandiera
+  // Traduce le <option> con data-i18n-opt
+  document.querySelectorAll("option[data-i18n-opt]").forEach(opt => {
+    const key = opt.getAttribute("data-i18n-opt");
+    if (t[key]) opt.textContent = t[key];
+  });
+
+  // Aggiorna il tasto lingua con bandierina e scritta
   const langToggle = document.getElementById("langToggleBtn");
   if (langToggle) {
     langToggle.innerHTML = currentLang === "it"
@@ -158,7 +178,6 @@ window.toggleLanguage = function() {
   currentLang = currentLang === "it" ? "en" : "it";
   localStorage.setItem("lang", currentLang);
   applyTranslations();
-  // Aggiorna il widget orario nella nuova lingua
   if (typeof updateTimeWidget === 'function') updateTimeWidget();
 };
 

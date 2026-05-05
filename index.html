@@ -44,31 +44,31 @@
     <div class="mobile-nav-drawer">
       <div class="mobile-nav-header">
         <span class="logo-icon">🍝</span>
-        <strong>Guida Ristoranti</strong>
+        <strong data-i18n="mobile_nav_title">Guida Ristoranti</strong>
         <button id="mobileNavClose" class="mobile-nav-close" aria-label="Chiudi menu">✕</button>
       </div>
       <div class="mobile-nav-search">
-        <input id="searchInputMobile" type="text" placeholder="Cerca ristorante o città…" />
+        <input id="searchInputMobile" type="text" placeholder="Cerca ristorante o città…" data-i18n="search_placeholder" />
         <span>🔍</span>
       </div>
       <div class="mobile-nav-sort">
-        <label>Ordina per</label>
+        <label data-i18n="sort_label">Ordina per</label>
         <select id="sortSelectMobile" class="sort-select-mobile">
-          <option value="default">🌟 Consigliati</option>
-          <option value="dist_asc">🚗 Vicini a me</option>
-          <option value="price_asc">💸 Più economici</option>
-          <option value="rating_desc">⭐ Top Recensioni</option>
+          <option value="default" data-i18n-opt="sort_recommended">🌟 Consigliati</option>
+          <option value="dist_asc" data-i18n-opt="sort_near">🚗 Vicini a me</option>
+          <option value="price_asc" data-i18n-opt="sort_cheap">💸 Più economici</option>
+          <option value="rating_desc" data-i18n-opt="sort_rating">⭐ Top Recensioni</option>
         </select>
       </div>
       <nav class="mobile-nav-filters">
-        <p class="mobile-nav-section-label">Categoria</p>
-        <button class="mobile-filter-btn active" data-cat="all">🍽️ Tutti</button>
+        <p class="mobile-nav-section-label" data-i18n="filter_label">Categoria</p>
+        <button class="mobile-filter-btn active" data-cat="all" data-i18n="filter_all">🍽️ Tutti</button>
         <button class="mobile-filter-btn" data-cat="ristorante">🍴 Ristoranti</button>
         <button class="mobile-filter-btn" data-cat="osteria">🍷 Osterie</button>
         <button class="mobile-filter-btn" data-cat="pasticceria">🥐 Pasticcerie</button>
         <button class="mobile-filter-btn" data-cat="bar">☕ Bar</button>
         <button class="mobile-filter-btn" data-cat="pizzeria">🍕 Pizzerie</button>
-        <button class="mobile-filter-btn" data-cat="preferiti">❤️ Preferiti</button>
+        <button class="mobile-filter-btn" data-cat="preferiti" data-i18n="filter_favs">❤️ Preferiti</button>
       </nav>
     </div>
   </div>
@@ -102,10 +102,10 @@
           <option value="Bologna">Bologna</option>
         </select>
         <select id="sortSelect" class="sort-select" title="Ordina per">
-          <option value="default">🌟 Consigliati</option>
-          <option value="dist_asc">🚗 Vicini a me</option>
-          <option value="price_asc">💸 Più economici</option>
-          <option value="rating_desc">⭐ Top Recensioni</option>
+          <option value="default" data-i18n-opt="sort_recommended">🌟 Consigliati</option>
+          <option value="dist_asc" data-i18n-opt="sort_near">🚗 Vicini a me</option>
+          <option value="price_asc" data-i18n-opt="sort_cheap">💸 Più economici</option>
+          <option value="rating_desc" data-i18n-opt="sort_rating">⭐ Top Recensioni</option>
         </select>
         <button id="langToggleBtn" class="theme-toggle lang-toggle" onclick="toggleLanguage()" title="Cambia lingua">🇬🇧 EN</button>
         <button id="themeToggle" class="theme-toggle" aria-label="Cambia tema">🌙</button>
