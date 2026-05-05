@@ -125,9 +125,9 @@
     <div class="live-badge"><span class="pulse-dot"></span> LIVE</div>
     <div class="marquee-wrap">
       <div class="marquee-content" id="liveMarquee">
-        <span>🏆 Osteria Francescana è nella Top 10 di Modena questa settimana!</span>
-        <span>🔥 35 utenti stanno guardando le pizzerie a Napoli.</span>
-        <span>🍕 Nuovi locali aggiunti a Roma!</span>
+        <span data-i18n="ticker_1">🏆 Osteria Francescana è nella Top 10 di Modena questa settimana!</span>
+        <span data-i18n="ticker_2">🔥 35 utenti stanno guardando le pizzerie a Napoli.</span>
+        <span data-i18n="ticker_3">🍕 Nuovi locali aggiunti a Roma!</span>
       </div>
     </div>
   </div>
@@ -144,9 +144,9 @@
         </div>
         <div class="tw-clock" id="twClock">--:--</div>
       </div>
-      <p class="hero-tag">🇮🇹 La vera cucina italiana</p>
-      <h2 class="hero-title">Scopri i Sapori<br /><em>d'Italia</em></h2>
-      <p class="hero-desc">Sfoglia i menu completi con antipasti, primi, secondi, dolci, vini, birre e bibite. Prezzi
+      <p class="hero-tag" data-i18n="hero_tag">🇮🇹 La vera cucina italiana</p>
+      <h2 class="hero-title" data-i18n="hero_title_big">Scopri i Sapori<br /><em>d'Italia</em></h2>
+      <p class="hero-desc" data-i18n="hero_desc">Sfoglia i menu completi con antipasti, primi, secondi, dolci, vini, birre e bibite. Prezzi
         trasparenti, qualità garantita.</p>
       <div id="weatherWidget" class="weather-widget hidden">
         <span id="weatherIcon" class="weather-icon">🌤️</span>
@@ -156,18 +156,18 @@
         </div>
       </div>
       <div class="hero-stats">
-        <div class="stat"><strong id="countRest">30+</strong><span>Ristoranti</span></div>
-        <div class="stat"><strong>🇮🇹</strong><span>15 Città</span></div>
-        <div class="stat"><strong>⭐</strong><span>Menu Reali</span></div>
+        <div class="stat"><strong id="countRest">30+</strong><span data-i18n="stats_rest">Ristoranti</span></div>
+        <div class="stat"><strong>🇮🇹</strong><span data-i18n="stats_cities">15 Città</span></div>
+        <div class="stat"><strong>⭐</strong><span data-i18n="stats_menus">Menu Reali</span></div>
       </div>
       <div class="hero-actions">
-        <button class="cta-btn" onclick="document.getElementById('restaurant-grid').scrollIntoView({behavior:'smooth'})">
+        <button class="cta-btn" onclick="document.getElementById('restaurant-grid').scrollIntoView({behavior:'smooth'})" data-i18n="btn_browse">
           Sfoglia i Locali ↓
         </button>
-        <button class="cta-btn vicino-a-me-btn" id="vicinoAMeBtn">
+        <button class="cta-btn vicino-a-me-btn" id="vicinoAMeBtn" data-i18n="btn_near_me">
           📍 Vicino a me
         </button>
-        <button class="cta-btn push-btn" onclick="requestPushNotifications()">
+        <button class="cta-btn push-btn" onclick="requestPushNotifications()" data-i18n="btn_push">
           🔔 Abilita Notifiche
         </button>
       </div>
@@ -175,9 +175,9 @@
     <!-- Google Maps Hero -->
     <div class="hero-map-wrap">
       <div class="hero-map-card">
-        <div class="hero-map-label">📍 Ristoranti nella tua zona</div>
+        <div class="hero-map-label" data-i18n="map_title">📍 Ristoranti nella tua zona</div>
         <div id="heroMap"></div>
-        <div class="hero-map-hint">Clicca su un segnaposto per aprire il menu del locale</div>
+        <div class="hero-map-hint" data-i18n="map_hint">Clicca su un segnaposto per aprire il menu del locale</div>
       </div>
     </div>
   </section>
@@ -185,13 +185,13 @@
   <!-- ===== RESTAURANT GRID ===== -->
   <main id="restaurant-grid" class="restaurant-section">
     <div class="section-head">
-      <h2>I Nostri Ristoranti</h2>
-      <p>Clicca su un locale per aprire il menu completo</p>
+      <h2 data-i18n="grid_title">I Nostri Ristoranti</h2>
+      <p data-i18n="grid_subtitle">Clicca su un locale per aprire il menu completo</p>
     </div>
 
     <!-- Inizio Container Visti di Recente -->
     <div id="recentContainer" class="recent-container hidden">
-      <h3>🕒 Visti di recente</h3>
+      <h3 data-i18n="recent_title">🕒 Visti di recente</h3>
       <div id="recentGrid" class="recent-grid"></div>
     </div>
     <!-- Fine Container Visti di Recente -->
