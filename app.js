@@ -11,6 +11,77 @@ const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 const USER_LOC = { lat: 44.6989, lng: 10.6297 }; // Reggio Emilia
 let heroMap, markerLayer;
 let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+let currentUser = null;
+
+// ── AUTHENTICATION ──
+let isLoginMode = true;
+
+window.openAuthModal = function() {
+  document.getElementById("authModal").classList.add("open");
+  document.body.style.overflow = "hidden";
+};
+
+window.closeAuthModal = function() {
+  document.getElementById("authModal").classList.remove("open");
+  document.body.style.overflow = "";
+};
+
+window.toggleAuthMode = function(e) {
+  e.preventDefault();
+  isLoginMode = !isLoginMode;
+  const title = document.getElementById("authTitle");
+  const btn = document.getElementById("authSubmitBtn");
+  const link = document.getElementById("authToggleLink");
+  
+  if (isLoginMode) {
+    title.setAttribute("data-i18n", "auth_login_title");
+    btn.setAttribute("data-i18n", "auth_submit_login");
+    link.setAttribute("data-i18n", "auth_toggle_register");
+  } else {
+    title.setAttribute("data-i18n", "auth_submit_register");
+    btn.setAttribute("data-i18n", "auth_submit_register");
+    link.setAttribute("data-i18n", "auth_toggle_login");
+  }
+  if (typeof applyTranslations === 'function') applyTranslations();
+};
+
+window.handleAuthSubmit = async function() {
+  const email = document.getElementById("authEmail").value;
+  const password = document.getElementById("authPassword").value;
+  if (!email || !password) { showToast("Inserisci email e password.", "⚠️"); return; }
+  
+  const btn = document.getElementById("authSubmitBtn");
+  btn.disabled = true;
+
+  if (isLoginMode) {
+    const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+    if (error) showToast("Errore: " + error.message, "❌");
+    else { showToast("Accesso effettuato!", "✅"); closeAuthModal(); }
+  } else {
+    const { data, error } = await _supabase.auth.signUp({ email, password });
+    if (error) showToast("Errore: " + error.message, "❌");
+    else { showToast("Registrazione completata!", "✅"); closeAuthModal(); }
+  }
+  
+  btn.disabled = false;
+  if (typeof applyTranslations === 'function') applyTranslations();
+};
+
+_supabase.auth.onAuthStateChange((event, session) => {
+  currentUser = session?.user || null;
+  const authBtn = document.getElementById("authBtn");
+  if (authBtn) {
+    if (currentUser) {
+      authBtn.setAttribute("data-i18n", "btn_logout");
+      authBtn.onclick = async () => { await _supabase.auth.signOut(); showToast("Disconnesso", "👋"); };
+    } else {
+      authBtn.setAttribute("data-i18n", "btn_login");
+      authBtn.onclick = openAuthModal;
+    }
+  }
+  if (typeof applyTranslations === 'function') applyTranslations();
+});
+
 
 function getDistance(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -216,9 +287,30 @@ function openModal(id) {
     }).join("");
     return `<div class="menu-panel ${i === 0 ? "active" : ""}" id="panel-${k}">${items}</div>`;
   }).join("");
+  // Modulo Nuova Recensione
+  const writeReviewHTML = currentUser ? `
+    <div class="review-write-box" style="margin-bottom:20px; padding:15px; background:#fff; border-radius:8px; border:1px solid #eee;">
+      <h4 style="margin-top:0; font-family:'Playfair Display',serif;" data-i18n="review_write">Scrivi una recensione</h4>
+      <select id="newRevStars" style="padding:8px; width:100%; margin-bottom:10px; border-radius:4px; border:1px solid #ccc;">
+        <option value="5">★★★★★ (5 Stelle)</option>
+        <option value="4">★★★★☆ (4 Stelle)</option>
+        <option value="3">★★★☆☆ (3 Stelle)</option>
+        <option value="2">★★☆☆☆ (2 Stelle)</option>
+        <option value="1">★☆☆☆☆ (1 Stella)</option>
+      </select>
+      <textarea id="newRevText" rows="3" style="width:100%; padding:8px; border-radius:4px; border:1px solid #ccc; margin-bottom:10px;" placeholder="Racconta la tua esperienza..."></textarea>
+      <button class="cta-btn push-btn" style="padding:8px 16px;" onclick="submitReview(${r.id})">Invia Recensione</button>
+    </div>
+  ` : `
+    <div style="text-align:center; margin-bottom:20px; padding:15px; background:#faf8f5; border-radius:8px;">
+      <p data-i18n="review_login_prompt">Fai il Login per scrivere una recensione.</p>
+      <button class="cta-btn push-btn" style="padding:6px 12px;" onclick="openAuthModal()" data-i18n="btn_login">Accedi</button>
+    </div>
+  `;
 
   // Costruzione Pannello Recensioni
-  const reviewsHTML = r.reviewsList ? r.reviewsList.map(rev => `
+  let reviewsHTML = writeReviewHTML;
+  reviewsHTML += r.reviewsList ? r.reviewsList.map(rev => `
     <div class="review-card">
       <div class="rev-avatar">👤</div>
       <div class="rev-body">
@@ -296,7 +388,36 @@ function openModal(id) {
   const overlay = document.getElementById("modal");
   overlay.classList.add("open");
   document.body.style.overflow = "hidden";
+  
+  // Applica le traduzioni anche nel modal se in inglese
+  if (typeof applyTranslations === 'function') applyTranslations();
 }
+
+window.submitReview = async function(restId) {
+  if (!currentUser) return;
+  const stars = document.getElementById("newRevStars").value;
+  const text = document.getElementById("newRevText").value;
+  if (!text) { showToast("Scrivi qualcosa prima di inviare", "⚠️"); return; }
+  
+  const starsStr = "★".repeat(stars) + "☆".repeat(5-stars);
+  
+  // Salva su supabase
+  const { data, error } = await _supabase.from('recensioni').insert([
+    { ristorante_id: restId, user_id: currentUser.id, nome_utente: currentUser.email.split('@')[0], stars: starsStr, testo: text }
+  ]);
+  
+  if (error) {
+    showToast("Errore durante l'invio: La tabella 'recensioni' non esiste ancora su Supabase.", "❌");
+  } else {
+    showToast("Recensione pubblicata!", "✅");
+    const r = RESTAURANTS.find(x => x.id === restId);
+    if(r) {
+      if(!r.reviewsList) r.reviewsList = [];
+      r.reviewsList.unshift({ user: currentUser.email.split('@')[0], date: "Oggi", stars: starsStr, text: text });
+      openModal(restId); // Riapre il modale per aggiornare la vista
+    }
+  }
+};
 
 window.toggleDietary = function () {
   const vChecked = document.getElementById("dtVegan").checked;

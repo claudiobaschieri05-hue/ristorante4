@@ -79,18 +79,18 @@
       <div class="logo">
         <span class="logo-icon">🍝</span>
         <div>
-          <h1 class="logo-title">Guida Ristoranti d'Italia</h1>
-          <p class="logo-sub">Menu interattivi · Prezzi reali · Oltre 30 locali</p>
+          <h1 class="logo-title" data-i18n="nav_title">Guida Ristoranti d'Italia</h1>
+          <p class="logo-sub" data-i18n="nav_subtitle">Menu interattivi · Prezzi reali · Oltre 30 locali</p>
         </div>
       </div>
       <nav class="filters desktop-filters">
-        <button class="filter-btn active" data-cat="all">Tutti</button>
+        <button class="filter-btn active" data-cat="all" data-i18n="filter_all">Tutti</button>
         <button class="filter-btn" data-cat="ristorante">🍴 Ristoranti</button>
         <button class="filter-btn" data-cat="osteria">🍷 Osterie</button>
         <button class="filter-btn" data-cat="pasticceria">🥐 Pasticcerie</button>
         <button class="filter-btn" data-cat="bar">☕ Bar</button>
         <button class="filter-btn" data-cat="pizzeria">🍕 Pizzerie</button>
-        <button class="filter-btn" data-cat="preferiti">❤️ Preferiti</button>
+        <button class="filter-btn" data-cat="preferiti" data-i18n="filter_favs">❤️ Preferiti</button>
       </nav>
       <div class="header-actions">
         <select id="filtroCitta" class="sort-select" onchange="caricaLocali(this.value)" title="Filtra per città">
@@ -105,11 +105,13 @@
           <option value="price_asc">💸 Più economici</option>
           <option value="rating_desc">⭐ Top Recensioni</option>
         </select>
+        <button id="langToggleBtn" class="theme-toggle lang-toggle" onclick="toggleLanguage()" title="Cambia lingua">🇬🇧 EN</button>
         <button id="themeToggle" class="theme-toggle" aria-label="Cambia tema">🌙</button>
         <div class="search-wrap">
-          <input id="searchInput" type="text" placeholder="Cerca ristorante o città…" />
+          <input id="searchInput" type="text" placeholder="Cerca ristorante o città…" data-i18n="search_placeholder" />
           <span class="search-icon">🔍</span>
         </div>
+        <button id="authBtn" class="cta-btn push-btn auth-btn" onclick="openAuthModal()" data-i18n="btn_login">👤 Accedi</button>
         <!-- Hamburger mobile -->
         <button id="hamburgerBtn" class="hamburger-btn" aria-label="Apri menu" aria-expanded="false">
           <span></span><span></span><span></span>
@@ -320,9 +322,26 @@
     <p class="footer-copyright">© 2026 · Fatto con ❤️ in Italia</p>
   </footer>
 
+  <!-- ===== AUTH MODAL ===== -->
+  <div class="modal-overlay" id="authModal" role="dialog" aria-modal="true">
+    <div class="modal-box auth-modal-box">
+      <button class="modal-close" onclick="closeAuthModal()" aria-label="Chiudi modal">✕</button>
+      <h2 class="auth-title" id="authTitle" data-i18n="auth_login_title">Accedi al tuo account</h2>
+      <div class="auth-input-group">
+        <input type="email" id="authEmail" class="auth-input" placeholder="Email" data-i18n="auth_email">
+        <input type="password" id="authPassword" class="auth-input" placeholder="Password" data-i18n="auth_password">
+        <button class="cta-btn push-btn auth-submit" id="authSubmitBtn" onclick="handleAuthSubmit()" data-i18n="auth_submit_login">Accedi</button>
+      </div>
+      <div class="auth-toggle-group">
+        <a href="#" id="authToggleLink" class="auth-toggle-link" onclick="toggleAuthMode(event)" data-i18n="auth_toggle_register">Non hai un account? Registrati</a>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== TOAST CONTAINER ===== -->
   <div id="toast-container" class="toast-container"></div>
 
+  <script src="translations.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
   <script src="features_addon.js"></script>
