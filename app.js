@@ -67,6 +67,18 @@ window.handleAuthSubmit = async function() {
   if (typeof applyTranslations === 'function') applyTranslations();
 };
 
+window.handleGoogleLogin = async function() {
+  const { data, error } = await _supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin
+    }
+  });
+  if (error) {
+    showToast("Errore Google Login: " + error.message, "❌");
+  }
+};
+
 _supabase.auth.onAuthStateChange((event, session) => {
   currentUser = session?.user || null;
   const authBtn = document.getElementById("authBtn");

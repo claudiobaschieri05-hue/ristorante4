@@ -354,6 +354,16 @@
         <input type="password" id="authPassword" class="auth-input" placeholder="Password" data-i18n="auth_password">
         <button class="cta-btn push-btn auth-submit" id="authSubmitBtn" onclick="handleAuthSubmit()" data-i18n="auth_submit_login">Accedi</button>
       </div>
+      
+      <div class="auth-divider">
+        <span data-i18n="auth_divider_or">oppure</span>
+      </div>
+      
+      <button class="google-auth-btn" onclick="handleGoogleLogin()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo" class="google-logo">
+        <span data-i18n="auth_google_btn">Accedi con Google</span>
+      </button>
+
       <div class="auth-toggle-group">
         <a href="#" id="authToggleLink" class="auth-toggle-link" onclick="toggleAuthMode(event)" data-i18n="auth_toggle_register">Non hai un account? Registrati</a>
       </div>

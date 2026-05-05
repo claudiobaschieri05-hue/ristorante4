@@ -67,7 +67,9 @@ const TRANSLATIONS = {
     "auth_submit_login": "Accedi",
     "auth_submit_register": "Registrati",
     "auth_toggle_register": "Non hai un account? Registrati",
-    "auth_toggle_login": "Hai già un account? Accedi"
+    "auth_toggle_login": "Hai già un account? Accedi",
+    "auth_divider_or": "oppure",
+    "auth_google_btn": "Accedi con Google"
   },
   en: {
     // HEADER
@@ -136,7 +138,9 @@ const TRANSLATIONS = {
     "auth_submit_login": "Login",
     "auth_submit_register": "Register",
     "auth_toggle_register": "Don't have an account? Register",
-    "auth_toggle_login": "Already have an account? Login"
+    "auth_toggle_login": "Already have an account? Login",
+    "auth_divider_or": "or",
+    "auth_google_btn": "Continue with Google"
   }
 };
 

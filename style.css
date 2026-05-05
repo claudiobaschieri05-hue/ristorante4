@@ -3160,6 +3160,43 @@ body.cart-open .chatbot-fab {
 .profile-empty { color: #7a6040; font-size: 0.85rem; font-style: italic; }
 .profile-logout-btn { width: 100%; justify-content: center; margin-top: 8px; }
 
+/* ── GOOGLE AUTH ── */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 16px 0;
+  color: #9c805a;
+  font-size: 0.8rem;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid rgba(201,147,58,0.2);
+}
+.auth-divider span { padding: 0 10px; }
+
+.google-auth-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  background: #fff;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 16px;
+}
+.google-auth-btn:hover { background: #f8f8f8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.google-logo { width: 20px; height: 20px; }
 
 /* Auth & Lang Buttons */
 .lang-toggle {
