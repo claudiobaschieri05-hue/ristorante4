@@ -13,8 +13,11 @@ let heroMap, markerLayer;
 let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 let currentUser = null;
 
-// Salva una copia statica dei dati di data.js prima che Supabase li modifichi
-window.RESTAURANTS_STATIC = typeof RESTAURANTS !== 'undefined' ? [...RESTAURANTS] : [];
+// Funzione per aggiornare RESTAURANTS in modo sicuro (muta l'array originale)
+function setRestaurants(newData) {
+  RESTAURANTS.length = 0;
+  newData.forEach(r => RESTAURANTS.push(r));
+}
 
 // ── AUTHENTICATION ──
 let isLoginMode = true;
@@ -694,6 +697,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   initWeather();
   
   // ── SINCRONIZZAZIONE RISTORANTI DA SUPABASE ──
+  // RESTAURANTS è la variabile let di data.js - la mutiamo direttamente
+  // così openModal, applyFilters, ecc. la trovano sempre aggiornata
+  const staticData = [...RESTAURANTS]; // copia dei dati statici
+  
   try {
     const { data: customRests, error } = await _supabase
       .from('ristoranti_custom')
@@ -708,27 +715,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         reviewsCount: Math.floor(Math.random() * 100) + 10,
         desc: r.descrizione || r.desc || "",
       }));
-      // Aggiunge i custom ai dati statici
-      window.RESTAURANTS = [...(window.RESTAURANTS_STATIC || RESTAURANTS), ...formatted];
+      // Aggiunge i locali custom ai dati statici mutando l'array originale
+      setRestaurants([...staticData, ...formatted]);
       console.log("Database sincronizzato: aggiunto " + formatted.length + " locali custom.");
     } else {
-      // Nessun dato custom, usa i dati statici di data.js
-      window.RESTAURANTS = window.RESTAURANTS_STATIC || RESTAURANTS;
-      console.log("Nessun locale custom su Supabase, uso dati statici:", window.RESTAURANTS.length);
+      // Nessun dato custom: l'array RESTAURANTS rimane già con i dati statici
+      console.log("Nessun locale custom, uso dati statici:", RESTAURANTS.length);
     }
   } catch (e) {
-    // In caso di errore di rete, usa comunque i dati statici
-    window.RESTAURANTS = window.RESTAURANTS_STATIC || RESTAURANTS;
-    console.error("Errore Supabase, fallback ai dati statici:", e);
+    // Errore di rete: l'array RESTAURANTS rimane con i dati statici
+    console.error("Errore Supabase, uso dati statici:", e);
   }
 
-  // Mostra subito la griglia con i dati disponibili (statici o custom)
-  renderCards(window.RESTAURANTS);
-  updateMapMarkers(window.RESTAURANTS);
+  // Mostra la griglia e i marker sulla mappa
+  renderCards(RESTAURANTS);
+  updateMapMarkers(RESTAURANTS);
   renderRecentVisits();
   renderCart();
-  showToast(`${window.RESTAURANTS.length} locali caricati ✅`, "🍽️");
-
+  showToast(`${RESTAURANTS.length} locali caricati ✅`, "🍽️");
 
   // ── PUSH NOTIFICATIONS REQUEST ──
   window.requestPushNotifications = function() {

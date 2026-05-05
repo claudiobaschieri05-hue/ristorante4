@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ristoranti-pwa-v9';
+const CACHE_NAME = 'ristoranti-pwa-v11';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
