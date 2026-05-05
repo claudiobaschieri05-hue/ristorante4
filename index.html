@@ -30,7 +30,7 @@
   <!-- ===== CREDITS BAR ===== -->
   <div class="top-credit-bar">
     <div>Questo sito è stato creato da <strong>Claudio Baschieri</strong></div>
-    <div id="last-update-bar" style="font-size: .8rem; color: #a48c68; margin-top: 4px; font-weight: 500;">
+    <div id="last-update-bar" class="last-update-bar">
       🔄 Verifica server in corso...
     </div>
   </div>
@@ -89,13 +89,13 @@
         <button class="filter-btn" data-cat="preferiti">❤️ Preferiti</button>
       </nav>
       <div class="header-actions">
-        <select id="filtroCitta" class="sort-select" onchange="caricaLocali(this.value)">
+        <select id="filtroCitta" class="sort-select" onchange="caricaLocali(this.value)" title="Filtra per città">
           <option value="Reggio Emilia">Reggio Emilia</option>
           <option value="Parma">Parma</option>
           <option value="Modena">Modena</option>
           <option value="Bologna">Bologna</option>
         </select>
-        <select id="sortSelect" class="sort-select">
+        <select id="sortSelect" class="sort-select" title="Ordina per">
           <option value="default">🌟 Consigliati</option>
           <option value="dist_asc">🚗 Vicini a me</option>
           <option value="price_asc">💸 Più economici</option>
@@ -154,11 +154,11 @@
         <div class="stat"><strong>🇮🇹</strong><span>15 Città</span></div>
         <div class="stat"><strong>⭐</strong><span>Menu Reali</span></div>
       </div>
-      <div style="display: flex; gap: 12px; margin-top: 20px;">
+      <div class="hero-actions">
         <button class="cta-btn" onclick="document.getElementById('restaurant-grid').scrollIntoView({behavior:'smooth'})">
           Sfoglia i Locali ↓
         </button>
-        <button class="cta-btn" id="vicinoAMeBtn" style="background: var(--gold); color: #fff;">
+        <button class="cta-btn vicino-a-me-btn" id="vicinoAMeBtn">
           📍 Vicino a me
         </button>
       </div>
@@ -198,7 +198,7 @@
   </div>
 
   <!-- ===== BOOKING MODAL (PRENOTAZIONI) ===== -->
-  <div class="modal-overlay" id="bookModal" role="dialog" aria-modal="true" style="z-index: 10005;">
+  <div class="modal-overlay book-modal-overlay" id="bookModal" role="dialog" aria-modal="true">
     <div class="book-box">
       <button class="modal-close" id="bookClose" aria-label="Chiudi prenotazione">✕</button>
       <div class="book-header">
@@ -223,11 +223,11 @@
         <div class="form-row">
           <div class="form-group half">
             <label>Data e Orario</label>
-            <input type="datetime-local" id="bookTime" required>
+            <input type="datetime-local" id="bookTime" required title="Data e Orario">
           </div>
           <div class="form-group half">
             <label>Persone</label>
-            <input type="number" id="bookGuests" min="1" max="20" required value="2">
+            <input type="number" id="bookGuests" min="1" max="20" required value="2" title="Numero di ospiti">
           </div>
         </div>
         <button type="submit" class="book-submit-btn">Conferma Prenotazione</button>
@@ -272,7 +272,7 @@
       <div class="typing-dots"><span></span><span></span><span></span></div>
     </div>
 
-    <div class="chat-quick-replies" style="display:none;"></div>
+    <div class="chat-quick-replies chat-quick-replies-hidden"></div>
 
     <div class="chatbot-input">
       <input type="text" id="chat-input-text" placeholder="Es. 'Pizzerie a Roma' o 'Pesce a Napoli'..."
@@ -310,7 +310,7 @@
   <!-- ===== FOOTER ===== -->
   <footer class="site-footer">
     <p>🍝 Guida Ristoranti d'Italia — Tutti i prezzi sono indicativi e soggetti a variazioni stagionali.</p>
-    <p style="margin-top:6px;font-size:0.8rem;opacity:.6">© 2026 · Fatto con ❤️ in Italia</p>
+    <p class="footer-copyright">© 2026 · Fatto con ❤️ in Italia</p>
   </footer>
 
   <!-- ===== TOAST CONTAINER ===== -->
@@ -324,7 +324,7 @@
   <script src="ultimate_premium.js"></script>
   <!-- ===== AUDIO BACKGROUND ===== -->
   <audio id="bgMusic" loop src="https://cdn.pixabay.com/download/audio/2022/05/16/audio_b200b39f1c.mp3?filename=jazz-lounge-110826.mp3"></audio>
-  <button id="musicToggleBtn" aria-label="Play/Pause Background Music" style="position:fixed; bottom:20px; left:20px; z-index:10000; width:48px; height:48px; border-radius:50%; border:none; background:rgba(20,20,20,0.8); color:#fff; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
+  <button id="musicToggleBtn" class="music-toggle-btn" aria-label="Play/Pause Background Music">
     <span class="material-icons-round" id="musicToggleIcon">music_off</span>
   </button>
   <script>
