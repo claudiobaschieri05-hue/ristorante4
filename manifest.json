@@ -1,0 +1,21 @@
+{
+  "name": "Guida Ristoranti d'Italia",
+  "short_name": "Ristoranti IT",
+  "description": "Guida interattiva ai migliori ristoranti italiani con menu, prezzi e mappa.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a1208",
+  "theme_color": "#c9932e",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
