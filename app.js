@@ -13,6 +13,9 @@ let heroMap, markerLayer;
 let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 let currentUser = null;
 
+// Salva una copia statica dei dati di data.js prima che Supabase li modifichi
+window.RESTAURANTS_STATIC = typeof RESTAURANTS !== 'undefined' ? [...RESTAURANTS] : [];
+
 // ── AUTHENTICATION ──
 let isLoginMode = true;
 
@@ -696,32 +699,36 @@ document.addEventListener("DOMContentLoaded", async () => {
       .from('ristoranti_custom')
       .select('*');
     
-    if (!error && customRests) {
-      // Trasforma i dati di Supabase nel formato dell'app
+    if (!error && customRests && customRests.length > 0) {
       const formatted = customRests.map(r => ({
         ...r,
-        id: "c" + r.id, // Aggiungiamo un prefisso per evitare conflitti con gli ID fissi
+        id: "c" + r.id,
         emoji: r.cat === 'pizzeria' ? '🍕' : (r.cat === 'pasticceria' ? '🥐' : (r.cat === 'bar' ? '☕' : (r.cat === 'osteria' ? '🍷' : '🍴'))),
         menu: r.menu || { "Piatti": [{ name: "Consultare il locale", price: "Varia", desc: "Menu in fase di aggiornamento" }] },
         reviewsCount: Math.floor(Math.random() * 100) + 10,
-        desc: r.descrizione || r.desc || "", // Supporto per il nuovo nome campo
+        desc: r.descrizione || r.desc || "",
       }));
-      
-      // Uniamo alla lista globale
-      window.RESTAURANTS = [...RESTAURANTS, ...formatted];
+      // Aggiunge i custom ai dati statici
+      window.RESTAURANTS = [...(window.RESTAURANTS_STATIC || RESTAURANTS), ...formatted];
       console.log("Database sincronizzato: aggiunto " + formatted.length + " locali custom.");
+    } else {
+      // Nessun dato custom, usa i dati statici di data.js
+      window.RESTAURANTS = window.RESTAURANTS_STATIC || RESTAURANTS;
+      console.log("Nessun locale custom su Supabase, uso dati statici:", window.RESTAURANTS.length);
     }
   } catch (e) {
-    console.error("Errore sincronizzazione Supabase:", e);
+    // In caso di errore di rete, usa comunque i dati statici
+    window.RESTAURANTS = window.RESTAURANTS_STATIC || RESTAURANTS;
+    console.error("Errore Supabase, fallback ai dati statici:", e);
   }
 
-  setTimeout(() => showToast("Database sincronizzato con Supabase", "🔄"), 800);
-  
-  // Caricamento iniziale (es. Reggio Emilia)
-  caricaLocali("Reggio Emilia");
-
+  // Mostra subito la griglia con i dati disponibili (statici o custom)
+  renderCards(window.RESTAURANTS);
+  updateMapMarkers(window.RESTAURANTS);
   renderRecentVisits();
   renderCart();
+  showToast(`${window.RESTAURANTS.length} locali caricati ✅`, "🍽️");
+
 
   // ── PUSH NOTIFICATIONS REQUEST ──
   window.requestPushNotifications = function() {
