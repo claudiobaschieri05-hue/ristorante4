@@ -88,22 +88,43 @@ window.handleGoogleLogin = async function() {
 
 _supabase.auth.onAuthStateChange((event, session) => {
   currentUser = session?.user || null;
-  const authBtn = document.getElementById("authBtn");
-  if (authBtn) {
+  
+  const updateAuthBtn = (btn) => {
+    if (!btn) return;
     if (currentUser) {
       const userEmail = currentUser.email || currentUser.user_metadata?.email || "Utente";
       let userName = currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || userEmail.split('@')[0];
       if (userName.length > 12) userName = userName.substring(0, 10) + "..";
       const initials = userName[0] ? userName[0].toUpperCase() : "?";
-      authBtn.removeAttribute("data-i18n"); // Impedisce alla lingua di sovrascrivere il nome
-      authBtn.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:22px;height:22px;border-radius:50%;background:var(--gold);color:#1a0f00;font-weight:800;font-size:0.75rem;display:inline-flex;align-items:center;justify-content:center;">${initials}</span> ${userName}</span>`;
-      authBtn.onclick = openProfileModal;
+      btn.removeAttribute("data-i18n"); // Impedisce alla lingua di sovrascrivere il nome
+      btn.innerHTML = `<span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:22px;height:22px;border-radius:50%;background:var(--gold);color:#1a0f00;font-weight:800;font-size:0.75rem;display:inline-flex;align-items:center;justify-content:center;">${initials}</span> ${userName}</span>`;
+      btn.onclick = () => {
+        // Chiude il menu laterale se è aperto da smartphone
+        const mobileNav = document.getElementById("mobileNavOverlay");
+        if (mobileNav) {
+          mobileNav.setAttribute("aria-hidden", "true");
+          document.body.style.overflow = "";
+        }
+        openProfileModal();
+      };
     } else {
-      authBtn.setAttribute("data-i18n", "btn_login");
-      authBtn.innerHTML = "👤 Accedi";
-      authBtn.onclick = openAuthModal;
+      btn.setAttribute("data-i18n", "btn_login");
+      btn.innerHTML = "👤 Accedi";
+      btn.onclick = () => {
+        // Chiude il menu laterale se è aperto da smartphone
+        const mobileNav = document.getElementById("mobileNavOverlay");
+        if (mobileNav) {
+          mobileNav.setAttribute("aria-hidden", "true");
+          document.body.style.overflow = "";
+        }
+        openAuthModal();
+      };
     }
-  }
+  };
+
+  updateAuthBtn(document.getElementById("authBtn"));
+  updateAuthBtn(document.getElementById("authBtnMobile"));
+
   if (typeof applyTranslations === 'function') applyTranslations();
 });
 
